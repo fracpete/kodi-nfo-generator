@@ -1,7 +1,6 @@
-# kodi-nfo-generator
 The **kodi-nfo-generator** is a simple Python-based command-line
-tool that allows you to generate [.nfo](https://kodi.wiki/view/NFO_files/Movies) 
-files for movies that [Kodi](https://kodi.tv/) can use for its library.
+tool that allows you to generate `.nfo <https://kodi.wiki/view/NFO_files/Movies>`_ 
+files for movies that `Kodi <https://kodi.tv/>`_ can use for its library.
 
 This tool is aimed at people that manually curate their movie databases, in order
 to avoid using scrapers that may pull in the wrong information (or none at all).
