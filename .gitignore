@@ -135,4 +135,6 @@ dmypy.json
 .idea/
 *.iml
 test/
+test_import/
+
 

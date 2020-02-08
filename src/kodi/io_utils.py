@@ -14,6 +14,7 @@
 # io_utils.py
 # Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
 
+import fnmatch
 import os
 from xml.dom import minidom
 
@@ -74,3 +75,32 @@ def read_id_from_nfo(nfo_path, idtype):
             break
 
     return id.strip()
+
+
+def guess_file_name(dir):
+    """
+    Tries to determine the filename (excl extension) for the specified directory.
+    Looks for .nfo file, then video files (mp4, mkv, avi) and finally the base name
+    of the directory itself.
+
+    :param dir: the directory to guess the file name for
+    :type dir: str
+    :return: the guessed file name (excl path)
+    :rtype: str
+    """
+
+    result = None
+
+    # nfo or video file?
+    exts = ["nfo", "mp4", "mkv", "avi"]
+    for ext in exts:
+        filenames = fnmatch.filter(os.listdir(dir), "*." + ext)
+        if len(filenames) == 1:
+            result = os.path.splitext(os.path.basename(filenames[0]))[0]
+            break
+
+    # directory
+    if result is None:
+        result = os.path.basename(dir)
+
+    return result

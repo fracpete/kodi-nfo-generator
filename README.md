@@ -106,24 +106,33 @@ files in your movie directory structure.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb}] [--dry_run]
-                       [--verbose] [--debug]
+usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb}] --col_id COL
+                       --col_dir COL [--col_file COL] [--dry_run]
+                       [--overwrite] [--verbose] [--debug]
 
 Imports IDs from CSV, storing ID files in the associated directories.
 
 optional arguments:
-  -h, --help     show this help message and exit
-  --input CSV    the CSV output file to store the collected information in
-                 (default: None)
-  --dir DIR      the top-level directory of the movies if relative directories
-                 are used in the CSV file (default: None)
-  --type {imdb}  what type of ID to create, ie what website the IDs are from
-                 (default: imdb)
-  --dry_run      whether to perform a 'dry-run', ie only outputting the ID
-                 file content to stdout but not saving them to files (default:
-                 False)
-  --verbose      whether to output logging information (default: False)
-  --debug        whether to output debugging information (default: False)
+  -h, --help      show this help message and exit
+  --input CSV     the CSV output file to store the collected information in
+                  (default: None)
+  --dir DIR       the top-level directory of the movies if relative
+                  directories are used in the CSV file (default: None)
+  --type {imdb}   what type of ID to create, ie what website the IDs are from
+                  (default: imdb)
+  --col_id COL    the column that contains the ID (name or 1-based index)
+                  (default: None)
+  --col_dir COL   the column that contains the directory (name or 1-based
+                  index) (default: None)
+  --col_file COL  the column that contains the file name (name or 1-based
+                  index) (default: None)
+  --dry_run       whether to perform a 'dry-run', ie only outputting the ID
+                  file content to stdout but not saving them to files
+                  (default: False)
+  --overwrite     whether to overwrite any existing ID files or leave them be
+                  (default: False)
+  --verbose       whether to output logging information (default: False)
+  --debug         whether to output debugging information (default: False)
 ```
 
 ## Examples
@@ -196,14 +205,32 @@ kodi-nfo-export \
 
 ### kodi-nfo-import
 
-The following command-line imports the IMDB IDs from the CSV file `./list.csv` using 
+Assuming this CSV file (`./list.csv`) containing movie IDs and their associated 
+directories (and optional file name):
+
+```
+ID,File,Dir
+tt0017136,,Metropolis
+https://www.imdb.com/title/tt0019415/?ref_=nm_knf_i2,,Spies
+tt0013442,Nosferatu,Movies
+tt0018455,Sunrise,Movies
+```
+
+Then the following command-line imports the IMDB IDs from the CSV file using 
 `./mymovies` as top-level directory for relative paths in the CSV file:
 
 ```
-kodi-nfo-export \
+kodi-nfo-import \
   --input ./list.csv \
   --dir ./mymovies \
   --type imdb \
-  --recursive \
+  --col_id 1 \
+  --col_file 2 \
+  --col_dir 3 \
   --verbose
 ```
+
+**Note:** If a file name should not be present in the CSV, the import will then look 
+for files in that directory (.nfo, .mp4, .mkv, .avi). If it cannot find such a file, 
+it will use the base name of the directory (`Spies` and `Metropolis` in the above example 
+directory structure).
