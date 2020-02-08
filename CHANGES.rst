@@ -8,6 +8,7 @@ Changelog
 - added ability to import movie IDs from a CSV file using `kodi-nfo-import`
 - `kodi-nfo-gen` now handles movies that only have limited information available
   (e.g., no plot or no image)
+- added interactive mode to tools (`--interactive`)
 
 
 0.0.1 (2020-02-08)

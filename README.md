@@ -33,7 +33,7 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--preferred_language LANG]
                     [--fanart {none,download,use-existing}]
                     [--fanart_file FILE] [--dry_run] [--overwrite] [--verbose]
-                    [--debug]
+                    [--debug] [--interactive]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
 files with the unique IMDB movie ID.
@@ -66,6 +66,7 @@ optional arguments:
   --verbose             whether to output logging information (default: False)
   --debug               whether to output debugging information (default:
                         False)
+  --interactive         for enabling interactive mode (default: False)
 ```
 
 
@@ -80,6 +81,7 @@ The following parameters can be supplied to the tool:
 ```
 usage: kodi-nfo-export [-h] --dir DIR [--recursive] [--type {imdb}]
                        [--pattern GLOB] --output CSV [--verbose] [--debug]
+                       [--interactive]
 
 Exports Kodi ID/.nfo files to CSV, associating directories with IDs.
 
@@ -96,6 +98,7 @@ optional arguments:
                   (default: None)
   --verbose       whether to output logging information (default: False)
   --debug         whether to output debugging information (default: False)
+  --interactive   for enabling interactive mode (default: False)
 ```
 
 ## kodi-nfo-import
@@ -108,7 +111,7 @@ The following parameters can be supplied to the tool:
 ```
 usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb}] --col_id COL
                        --col_dir COL [--col_file COL] [--dry_run]
-                       [--overwrite] [--verbose] [--debug]
+                       [--overwrite] [--verbose] [--debug] [--interactive]
 
 Imports IDs from CSV, storing ID files in the associated directories.
 
@@ -133,6 +136,7 @@ optional arguments:
                   (default: False)
   --verbose       whether to output logging information (default: False)
   --debug         whether to output debugging information (default: False)
+  --interactive   for enabling interactive mode (default: False)
 ```
 
 ## Examples

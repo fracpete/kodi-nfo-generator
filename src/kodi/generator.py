@@ -21,14 +21,14 @@ import os
 import time
 import traceback
 from kodi.imdb import generate_imdb
-from kodi.io_utils import determine_dirs, read_id
+from kodi.io_utils import determine_dirs, read_id, skip, proceed
 
 # logging setup
 logger = logging.getLogger("kodi.generator")
 
 
 def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
-             language="en", fanart="none", fanart_file="folder.jpg"):
+             language="en", fanart="none", fanart_file="folder.jpg", interactive=False):
     """
     Traverses the directory Generates the .nfo files.
 
@@ -52,12 +52,16 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     :type fanart: str
     :param fanart_file: the fanart filename to use (when downloading or re-using existing)
     :type fanart_file: str
+    :param interactive: whether to use interactive mode
+    :type interactive: bool
     """
 
     dirs = []
     determine_dirs(dir, recursive, dirs)
     dirs.sort()
     logger.info("Dirs: %s" % ",".join(dirs))
+    if interactive:
+        delay = 0
 
     for d in dirs:
         logger.info("Current dir: %s" % d)
@@ -74,6 +78,12 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
             id = read_id(id_path)
             logger.info("ID: %s" % id)
+
+            if interactive and skip():
+                if proceed():
+                    continue
+                else:
+                    break
 
             try:
                 if idtype == "imdb":
@@ -92,6 +102,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
             except Exception:
                 logger.info(traceback.format_exc())
 
+            if interactive and not proceed():
+                break
             if delay > 0:
                 time.sleep(delay)
 
@@ -121,15 +133,22 @@ def main(args=None):
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+    parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
     parsed = parser.parse_args(args=args)
+    # interactive mode turns on verbose mode
+    if parsed.interactive and not (parsed.verbose or parsed.debug):
+        parsed.verbose = True
+    # configure loggin
     if parsed.debug:
         logging.basicConfig(level=logging.DEBUG)
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     logger.debug(parsed)
+    if parsed.interactive:
+        logger.info("Entering interactive mode")
     generate(dir=parsed.dir, idtype=parsed.type, recursive=parsed.recursive, pattern=parsed.pattern,
              dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language,
-             fanart=parsed.fanart, fanart_file=parsed.fanart_file)
+             fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive)
 
 
 def sys_main():

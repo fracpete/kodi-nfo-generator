@@ -19,7 +19,7 @@ import fnmatch
 import logging
 import os
 import traceback
-from kodi.io_utils import determine_dirs, read_id, read_id_from_nfo
+from kodi.io_utils import determine_dirs, read_id, read_id_from_nfo, skip, proceed
 
 # logging setup
 logger = logging.getLogger("kodi.export")
@@ -51,7 +51,7 @@ def write_to_csv(csv_file, dir, name, id):
     csv_file.write("\n")
 
 
-def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./kodi.csv"):
+def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./kodi.csv", interactive=False):
     """
     Exports the IDs from ID or .nfo files.
 
@@ -65,6 +65,8 @@ def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./k
     :type pattern: str
     :param output: the output CSV file to generate
     :type output: str
+    :param interactive: whether to use interactive mode
+    :type interactive: bool
     """
 
     dirs = []
@@ -76,6 +78,11 @@ def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./k
         csv_file.write("Directory,File,ID\n")
         for d in dirs:
             logger.info("Current dir: %s" % d)
+            if interactive and skip():
+                if proceed():
+                    continue
+                else:
+                    break
             processed = set()
 
             # ID file
@@ -98,6 +105,9 @@ def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./k
                     logger.info("ID: %s" % id)
                     write_to_csv(csv_file, d, name, id)
 
+            if interactive and not proceed():
+                break
+
 
 def main(args=None):
     """
@@ -119,13 +129,21 @@ def main(args=None):
     parser.add_argument("--output", metavar="CSV", dest="output", required=True, help="the CSV output file to store the collected information in")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+    parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
     parsed = parser.parse_args(args=args)
+    # interactive mode turns on verbose mode
+    if parsed.interactive and not (parsed.verbose or parsed.debug):
+        parsed.verbose = True
+    # configure loggin
     if parsed.debug:
         logging.basicConfig(level=logging.DEBUG)
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     logger.debug(parsed)
-    export_ids(dir=parsed.dir, recursive=parsed.recursive, pattern=parsed.pattern, output=parsed.output)
+    if parsed.interactive:
+        logger.info("Entering interactive mode")
+    export_ids(dir=parsed.dir, recursive=parsed.recursive, pattern=parsed.pattern, output=parsed.output,
+               interactive=parsed.interactive)
 
 
 def sys_main():

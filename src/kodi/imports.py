@@ -19,13 +19,13 @@ import csv
 import logging
 import os
 import traceback
-from kodi.io_utils import guess_file_name
+from kodi.io_utils import guess_file_name, skip, proceed
 
 # logging setup
 logger = logging.getLogger("kodi.import")
 
 
-def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=False):
+def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=False, interactive=False):
     """
     Imports the IDs from the CSV file.
 
@@ -41,6 +41,8 @@ def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=
     :type dry_run: bool
     :param overwrite: whether to overwrite existing ID files or skip them
     :type overwrite: bool
+    :param interactive: whether to use interactive mode
+    :type interactive: bool
     """
 
     indices = {}
@@ -86,6 +88,12 @@ def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=
                     r_dir = os.path.join(dir, r_dir)
                 logger.info("id|dir|file: %s|%s|%s" % (r_id, r_dir, r_file))
 
+                if interactive and skip():
+                    if proceed():
+                        continue
+                    else:
+                        break
+
                 # output ID file
                 if dry_run:
                     if r_file is not None:
@@ -103,6 +111,9 @@ def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=
                     else:
                         with open(id_path, "w") as id_file:
                             id_file.write(r_id)
+
+                if interactive and not proceed():
+                    break
 
 
 def main(args=None):
@@ -128,18 +139,25 @@ def main(args=None):
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite any existing ID files or leave them be")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+    parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
     parsed = parser.parse_args(args=args)
+    # interactive mode turns on verbose mode
+    if parsed.interactive and not (parsed.verbose or parsed.debug):
+        parsed.verbose = True
+    # configure loggin
     if parsed.debug:
         logging.basicConfig(level=logging.DEBUG)
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     logger.debug(parsed)
+    if parsed.interactive:
+        logger.info("Entering interactive mode")
     cols = {}
     cols["id"] = parsed.col_id
     cols["dir"] = parsed.col_dir
     cols["file"] = parsed.col_file
     import_ids(input=parsed.input, dir=parsed.dir, idtype=parsed.type, dry_run=parsed.dry_run,
-               overwrite=parsed.overwrite, cols=cols)
+               overwrite=parsed.overwrite, cols=cols, interactive=parsed.interactive)
 
 
 def sys_main():

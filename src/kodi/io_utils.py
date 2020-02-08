@@ -104,3 +104,49 @@ def guess_file_name(dir):
         result = os.path.basename(dir)
 
     return result
+
+
+def prompt(msg="Proceed (%s)? ", choices=["y", "n"]):
+    """
+    Prompts user in the console with a message with specific choices to select from.
+
+    :param msg: the message to display, use %s for inserting the allowed choices (format: a/b/c/...)
+    :type msg: str
+    :param choices: the list of allowed choices (must be strings)
+    :type choices: list
+    :return: the selected choice
+    :rtype: str
+    """
+
+    act_msg = msg
+    if "%s" in act_msg:
+        act_msg = act_msg % ("/".join(choices))
+    while True:
+        retval = input(act_msg)
+        if retval in choices:
+            result = retval
+            break
+
+    return result
+
+
+def proceed():
+    """
+    Prompts user whether to proceed (y/n).
+
+    :return: whether to proceed
+    :rtype: bool
+    """
+
+    return prompt(msg="Proceed (%s)? ", choices=["y", "n"]) == "y"
+
+
+def skip():
+    """
+    Prompts user whether to skip (y/n).
+
+    :return: whether to skip
+    :rtype: bool
+    """
+
+    return prompt(msg="Skip (%s)? ", choices=["y", "n"]) == "y"
