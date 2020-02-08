@@ -127,15 +127,17 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Generates Kodi .nfo files with information retrieved from IMDB using local files with the unique IMDB movie ID.')
-    parser.add_argument("--dir", metavar="dir", dest="dir", required=True, help="the directory to traverse")
-    parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
+        description='Generates Kodi .nfo files with information retrieved from IMDB using local files with the unique IMDB movie ID.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        prog="kodi-nfo-gen")
+    parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
+    parser.add_argument("--type", dest="TYPE", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
     parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
-    parser.add_argument("--pattern", metavar="glob", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
-    parser.add_argument("--delay", metavar="delay", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
-    parser.add_argument("--preferred_language", metavar="lang", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
+    parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
+    parser.add_argument("--delay", metavar="SECONDS", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
+    parser.add_argument("--preferred_language", metavar="LANG", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
     parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "use-existing"], default="none", required=False, help="how to deal with fan-art")
-    parser.add_argument("--fanart_file", metavar="fanart_file", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
+    parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
     parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
