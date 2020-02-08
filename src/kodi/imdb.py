@@ -77,16 +77,19 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", nf
         uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
         uniqueid.setAttribute("type", "imdb")
         uniqueid.setAttribute("default", "true")
-        add_node(doc, root, "plot", j["description"])
-        add_node(doc, root, "outline", j["description"])
-        add_node(doc, root, "premiered", j["datePublished"])
+        if "description" in j:
+            add_node(doc, root, "plot", j["description"])
+            add_node(doc, root, "outline", j["description"])
+        if "datePublished" in j:
+            add_node(doc, root, "premiered", j["datePublished"])
         if "director" in j and "name" in j["director"]:
             add_node(doc, root, "director", j["director"]["name"])
-        if isinstance(j["genre"], list):
-            for genre in j["genre"]:
-                add_node(doc, root, "genre", genre)
-        else:
-            add_node(doc, root, "genre", j["genre"])
+        if "genre" in j:
+            if isinstance(j["genre"], list):
+                for genre in j["genre"]:
+                    add_node(doc, root, "genre", genre)
+            else:
+                add_node(doc, root, "genre", j["genre"])
         for actor in j["actor"]:
             xactor = add_node(doc, root, "actor")
             add_node(doc, xactor, "name", actor["name"])
@@ -112,6 +115,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", nf
                     xthumb.setAttribute("aspect", "poster")
                 else:
                     logger.critical("Failed to download fanart, status code: " % r.status_code)
+            else:
+                logger.warning("No image associated, cannot download!")
         elif fanart == "use-existing":
             xthumb = add_node(doc, root, "thumb", fanart_file)
             xthumb.setAttribute("aspect", "poster")
