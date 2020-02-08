@@ -85,14 +85,14 @@ def generate_imdb(id, language="en"):
     doc = minidom.Document()
 
     widget = soup.find("div", id="star-rating-widget")
-    eng_title = widget["data-title"]
+    preflang_title = widget["data-title"]
 
     for script in soup.findAll("script", type="application/ld+json"):
         j = json.loads(script.text)
         logger.debug(j)
 
         root = add_node(doc, doc, "movie")
-        add_node(doc, root, "title", eng_title)
+        add_node(doc, root, "title", preflang_title)
         add_node(doc, root, "originaltitle", j["name"])
         uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
         uniqueid.setAttribute("type", "imdb")
