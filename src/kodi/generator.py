@@ -54,12 +54,14 @@ def add_node(doc, parent, name, value=None):
     return node
 
 
-def generate_imdb(id):
+def generate_imdb(id, language="en"):
     """
     Generates the XML for the specified IMDB ID.
 
     :param id: the IMDB ID to use
     :type id: str
+    :param language: the preferred language for the titles
+    :type language: str
     :return: the generated XML DOM
     :rtype: minidom.Document
     """
@@ -75,18 +77,23 @@ def generate_imdb(id):
 
 
     # retrieve html
-    r = requests.get(url)
+    r = requests.get(url, headers={"Accept-Language": language})
 
     # parse html
     soup = BeautifulSoup(r.content, "html.parser")
 
     doc = minidom.Document()
+
+    widget = soup.find("div", id="star-rating-widget")
+    eng_title = widget["data-title"]
+
     for script in soup.findAll("script", type="application/ld+json"):
         j = json.loads(script.text)
         logger.debug(j)
 
         root = add_node(doc, doc, "movie")
-        add_node(doc, root, "title", j["name"])
+        add_node(doc, root, "title", eng_title)
+        add_node(doc, root, "originaltitle", j["name"])
         uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
         uniqueid.setAttribute("type", "imdb")
         uniqueid.setAttribute("default", "true")
@@ -133,7 +140,8 @@ def determine_dirs(dir, recursive, result):
                 determine_dirs(full, True, result)
 
 
-def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False):
+def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
+             language="en"):
     """
     Traverses the directory Generates the .nfo files.
 
@@ -151,6 +159,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     :type dry_run: bool
     :param overwrite: whether to overwrite existing .nfo files (ie recreating them)
     :type overwrite: bool
+    :param language: the preferred language for the titles
+    :type language: str
     """
 
     dirs = []
@@ -177,7 +187,7 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
                 try:
                     if idtype == "imdb":
-                        doc = generate_imdb(id)
+                        doc = generate_imdb(id, language=language)
                     else:
                         logger.critical("Unhandled ID type: %s" % idtype)
                         return
@@ -211,6 +221,7 @@ def main(args=None):
     parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
     parser.add_argument("--pattern", metavar="glob", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
     parser.add_argument("--delay", metavar="delay", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
+    parser.add_argument("--preferred_language", metavar="lang", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
     parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
@@ -221,7 +232,7 @@ def main(args=None):
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     generate(dir=parsed.dir, idtype=parsed.type, recursive=parsed.recursive, pattern=parsed.pattern,
-             dry_run=parsed.dry_run, overwrite=parsed.overwrite)
+             dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language)
 
 
 def sys_main():
