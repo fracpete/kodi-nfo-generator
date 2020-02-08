@@ -21,7 +21,7 @@ import os
 import time
 import traceback
 from kodi.imdb import generate_imdb
-from kodi.io_utils import determine_dirs
+from kodi.io_utils import determine_dirs, read_id
 
 # logging setup
 logger = logging.getLogger("kodi.generator")
@@ -72,26 +72,25 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                 logger.info(".nfo file already exists, skipping")
                 continue
 
-            with open(id_path, "r") as id_file:
-                id = id_file.readline()
-                logger.info("ID: %s" % id)
+            id = read_id(id_path)
+            logger.info("ID: %s" % id)
 
-                try:
-                    if idtype == "imdb":
-                        doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                            nfo_file=xml_path)
-                    else:
-                        logger.critical("Unhandled ID type: %s" % idtype)
-                        return
-                    xml_str = doc.toprettyxml(indent="  ")
-                    if dry_run:
-                        print(xml_str)
-                    else:
-                        logger.info("Writing .nfo file: %s" % xml_path)
-                        with open(xml_path, "w") as xml_file:
-                            xml_file.write(xml_str)
-                except Exception:
-                    logger.info(traceback.format_exc())
+            try:
+                if idtype == "imdb":
+                    doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                        nfo_file=xml_path)
+                else:
+                    logger.critical("Unhandled ID type: %s" % idtype)
+                    return
+                xml_str = doc.toprettyxml(indent="  ")
+                if dry_run:
+                    print(xml_str)
+                else:
+                    logger.info("Writing .nfo file: %s" % xml_path)
+                    with open(xml_path, "w") as xml_file:
+                        xml_file.write(xml_str)
+            except Exception:
+                logger.info(traceback.format_exc())
 
             if delay > 0:
                 time.sleep(delay)
@@ -111,7 +110,7 @@ def main(args=None):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         prog="kodi-nfo-gen")
     parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
-    parser.add_argument("--type", dest="TYPE", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
+    parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
     parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
     parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
     parser.add_argument("--delay", metavar="SECONDS", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")

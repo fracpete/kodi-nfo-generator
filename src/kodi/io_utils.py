@@ -36,3 +36,17 @@ def determine_dirs(dir, recursive, result):
             full = os.path.join(dir, f)
             if os.path.isdir(full):
                 determine_dirs(full, True, result)
+
+
+def read_id(id_path):
+    """
+    Reads the ID from the specified ID file.
+
+    :param id_path: the ID file to read
+    :type id_path: str
+    :return: the ID
+    """
+
+    with open(id_path, "r") as id_file:
+        id = id_file.readline()
+        return id.strip()
