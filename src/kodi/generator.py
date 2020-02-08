@@ -21,30 +21,10 @@ import os
 import time
 import traceback
 from kodi.imdb import generate_imdb
+from kodi.io_utils import determine_dirs
 
 # logging setup
 logger = logging.getLogger("kodi.generator")
-
-
-def determine_dirs(dir, recursive, result):
-    """
-    Determines all the directories to inspect.
-
-    :param dir: the top-level directory
-    :type dir: str
-    :param recursive: whether to look for directories recursively
-    :type recursive: bool
-    :param result: for storing the located dirs
-    :type param: list
-    """
-
-    result.append(dir)
-    if recursive:
-        files = os.listdir(dir)
-        for f in files:
-            full = os.path.join(dir, f)
-            if os.path.isdir(full):
-                determine_dirs(full, True, result)
 
 
 def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
