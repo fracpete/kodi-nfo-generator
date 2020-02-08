@@ -22,7 +22,7 @@ import traceback
 logger = logging.getLogger("kodi.import")
 
 
-def import_ids(input, dir, idtype="imdb"):
+def import_ids(input, dir, idtype="imdb", dry_run=False):
     """
     Imports the IDs from the CSV file.
 
@@ -32,6 +32,8 @@ def import_ids(input, dir, idtype="imdb"):
     :type dir: str
     :param idtype: what type of ID files to generate (choices: 'imdb')
     :type idtype: str
+    :param dry_run: whether to perform a 'dry-run', ie only outputting the content of the ID files but not writing them to disk
+    :type dry_run: bool
     """
     pass
 
@@ -48,10 +50,11 @@ def main(args=None):
     parser = argparse.ArgumentParser(
         description='Imports IDs from CSV, storing ID files in the associated directories.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        prog="kodi-nfo-export")
+        prog="kodi-nfo-import")
     parser.add_argument("--input", metavar="CSV", dest="input", required=True, help="the CSV output file to store the collected information in")
     parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the top-level directory of the movies if relative directories are used in the CSV file")
     parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID to create, ie what website the IDs are from")
+    parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the ID file content to stdout but not saving them to files")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
     parsed = parser.parse_args(args=args)
@@ -60,7 +63,7 @@ def main(args=None):
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     logger.debug(parsed)
-    import_ids(input=parsed.input, dir=parsed.dir, idtype=parsed.type)
+    import_ids(input=parsed.input, dir=parsed.dir, idtype=parsed.type, dry_run=parsed.dry_run)
 
 
 def sys_main():

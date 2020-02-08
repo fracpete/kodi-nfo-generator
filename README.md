@@ -98,6 +98,34 @@ optional arguments:
   --debug         whether to output debugging information (default: False)
 ```
 
+## kodi-nfo-import
+
+With the `kodi-nfo-import` tool, you can import IDs from a CSV file and create ID
+files in your movie directory structure.
+
+The following parameters can be supplied to the tool:
+
+```
+usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb}] [--dry_run]
+                       [--verbose] [--debug]
+
+Imports IDs from CSV, storing ID files in the associated directories.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --input CSV    the CSV output file to store the collected information in
+                 (default: None)
+  --dir DIR      the top-level directory of the movies if relative directories
+                 are used in the CSV file (default: None)
+  --type {imdb}  what type of ID to create, ie what website the IDs are from
+                 (default: imdb)
+  --dry_run      whether to perform a 'dry-run', ie only outputting the ID
+                 file content to stdout but not saving them to files (default:
+                 False)
+  --verbose      whether to output logging information (default: False)
+  --debug        whether to output debugging information (default: False)
+```
+
 ## Examples
 
 For the following examples, we assume your movies are structured like this:
@@ -155,12 +183,27 @@ kodi-nfo-gen \
 
 ### kodi-nfo-export
 
-The following command-line exports all the movies from the `./mymovies` directory as a CSV file `./list.csv`
+The following command-line exports all the movies from the `./mymovies` directory 
+as a CSV file `./list.csv`:
 
 ```
 kodi-nfo-export \
   --dir ./mymovies \
   --output ./list.csv \
+  --recursive \
+  --verbose
+```
+
+### kodi-nfo-import
+
+The following command-line imports the IMDB IDs from the CSV file `./list.csv` using 
+`./mymovies` as top-level directory for relative paths in the CSV file:
+
+```
+kodi-nfo-export \
+  --input ./list.csv \
+  --dir ./mymovies \
+  --type imdb \
   --recursive \
   --verbose
 ```
