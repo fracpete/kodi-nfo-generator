@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# export.py
+# exports.py
 # Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
 
 import argparse
@@ -51,11 +51,11 @@ def write_to_csv(csv_file, dir, name, id):
     csv_file.write("\n")
 
 
-def export(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./kodi.csv"):
+def export_ids(dir, idtype="imdb", recursive=True, pattern="*.imdb", output="./kodi.csv"):
     """
-    Exports the located .nfo files
+    Exports the IDs from ID or .nfo files.
 
-    :param dir: the directory to look for .nfo files
+    :param dir: the directory to look for ID/.nfo files
     :type dir: str
     :param idtype: what type of IDs to extract from .nfo files (choices: 'imdb')
     :type idtype: str
@@ -125,7 +125,7 @@ def main(args=None):
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
     logger.debug(parsed)
-    export(dir=parsed.dir, recursive=parsed.recursive, pattern=parsed.pattern, output=parsed.output)
+    export_ids(dir=parsed.dir, recursive=parsed.recursive, pattern=parsed.pattern, output=parsed.output)
 
 
 def sys_main():
