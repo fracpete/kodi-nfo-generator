@@ -72,7 +72,13 @@ def import_ids(input, dir, idtype="imdb", cols=dict(), dry_run=False, overwrite=
             else:
                 # read values
                 r_id = row[indices["id"]]
+                if r_id is None or len(r_id) == 0:
+                    logger.warning("No ID, skipping row: %s" % str(row))
+                    continue
                 r_dir = row[indices["dir"]]
+                if r_dir is None or len(r_dir) == 0:
+                    logger.warning("No directory, skipping row: %s" % str(row))
+                    continue
                 r_file = None
                 if indices["file"] != -1:
                     r_file = row[indices["file"]]
