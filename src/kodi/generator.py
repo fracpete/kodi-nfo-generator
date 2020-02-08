@@ -15,111 +15,15 @@
 # Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
 
 import argparse
-from bs4 import BeautifulSoup
 import fnmatch
-import json
 import logging
 import os
-import requests
 import time
 import traceback
-from xml.dom import minidom
+from kodi.imdb import generate_imdb
 
 # logging setup
 logger = logging.getLogger("kodi.generator")
-
-
-def add_node(doc, parent, name, value=None):
-    """
-    Adds a node to the DOM document.
-
-    :param doc: the DOM document
-    :type doc: minidom.Document
-    :param parent: the parent node to add the new node to
-    :type parent: minidom.Element
-    :param name: the name of the node
-    :type name: str
-    :param value: the text value, ignored if None
-    :type value: str
-    :return: the generated node
-    :rtype: minidom.Element
-    """
-
-    node = doc.createElement(name)
-    parent.appendChild(node)
-    if value is not None:
-        text = doc.createTextNode(value)
-        node.appendChild(text)
-
-    return node
-
-
-def generate_imdb(id, language="en"):
-    """
-    Generates the XML for the specified IMDB ID.
-
-    :param id: the IMDB ID to use
-    :type id: str
-    :param language: the preferred language for the titles
-    :type language: str
-    :return: the generated XML DOM
-    :rtype: minidom.Document
-    """
-
-    id = id.strip()
-
-    # generate URL
-    if id.startswith("http"):
-        url = id
-    else:
-        url = "https://www.imdb.com/title/%s/" % id
-    logger.info("IMDB URL: " + url)
-
-
-    # retrieve html
-    r = requests.get(url, headers={"Accept-Language": language})
-
-    # parse html
-    soup = BeautifulSoup(r.content, "html.parser")
-
-    doc = minidom.Document()
-
-    widget = soup.find("div", id="star-rating-widget")
-    preflang_title = widget["data-title"]
-
-    for script in soup.findAll("script", type="application/ld+json"):
-        j = json.loads(script.text)
-        logger.debug(j)
-
-        root = add_node(doc, doc, "movie")
-        add_node(doc, root, "title", preflang_title)
-        add_node(doc, root, "originaltitle", j["name"])
-        uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
-        uniqueid.setAttribute("type", "imdb")
-        uniqueid.setAttribute("default", "true")
-        add_node(doc, root, "plot", j["description"])
-        add_node(doc, root, "outline", j["description"])
-        add_node(doc, root, "premiered", j["datePublished"])
-        if "director" in j and "name" in j["director"]:
-            add_node(doc, root, "director", j["director"]["name"])
-        if isinstance(j["genre"], list):
-            for genre in j["genre"]:
-                add_node(doc, root, "genre", genre)
-        else:
-            add_node(doc, root, "genre", j["genre"])
-        for actor in j["actor"]:
-            xactor = add_node(doc, root, "actor")
-            add_node(doc, xactor, "name", actor["name"])
-        if "trailer" in j and "embedUrl" in j["trailer"]:
-            add_node(doc, root, "trailer", "https://www.imdb.com" + j["trailer"]["embedUrl"])
-        if "aggregateRating" in j and "ratingValue" in j["aggregateRating"]:
-            xratings = add_node(doc, root, "ratings")
-            xrating = add_node(doc, xratings, "rating")
-            xrating.setAttribute("name", "imdb")
-            xrating.setAttribute("max", "10")
-            add_node(doc, xrating, "value", j["aggregateRating"]["ratingValue"])
-
-    return doc
 
 
 def determine_dirs(dir, recursive, result):
@@ -144,7 +48,7 @@ def determine_dirs(dir, recursive, result):
 
 
 def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
-             language="en"):
+             language="en", fanart="none", fanart_file="folder.jpg"):
     """
     Traverses the directory Generates the .nfo files.
 
@@ -164,6 +68,10 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     :type overwrite: bool
     :param language: the preferred language for the titles
     :type language: str
+    :param fanart: how to deal with fanart
+    :type fanart: str
+    :param fanart_file: the fanart filename to use (when downloading or re-using existing)
+    :type fanart_file: str
     """
 
     dirs = []
@@ -190,7 +98,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
                 try:
                     if idtype == "imdb":
-                        doc = generate_imdb(id, language=language)
+                        doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                            nfo_file=xml_path)
                     else:
                         logger.critical("Unhandled ID type: %s" % idtype)
                         return
@@ -225,6 +134,8 @@ def main(args=None):
     parser.add_argument("--pattern", metavar="glob", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
     parser.add_argument("--delay", metavar="delay", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
     parser.add_argument("--preferred_language", metavar="lang", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
+    parser.add_argument("--fanart", metavar="fanart", dest="fanart", choices=["none", "download", "use-existing"], default="none", required=False, help="how to deal with fan-art")
+    parser.add_argument("--fanart_file", metavar="fanart_file", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
     parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
@@ -234,8 +145,10 @@ def main(args=None):
         logging.basicConfig(level=logging.DEBUG)
     elif parsed.verbose:
         logging.basicConfig(level=logging.INFO)
+    logger.debug(parsed)
     generate(dir=parsed.dir, idtype=parsed.type, recursive=parsed.recursive, pattern=parsed.pattern,
-             dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language)
+             dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language,
+             fanart=parsed.fanart, fanart_file=parsed.fanart_file)
 
 
 def sys_main():
