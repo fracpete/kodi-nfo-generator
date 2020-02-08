@@ -29,6 +29,31 @@ from xml.dom import minidom
 logger = logging.getLogger("kodi.generator")
 
 
+def add_node(doc, parent, name, value=None):
+    """
+    Adds a node to the DOM document.
+
+    :param doc: the DOM document
+    :type doc: minidom.Document
+    :param parent: the parent node to add the new node to
+    :type parent: minidom.Element
+    :param name: the name of the node
+    :type name: str
+    :param value: the text value, ignored if None
+    :type value: str
+    :return: the generated node
+    :rtype: minidom.Element
+    """
+
+    node = doc.createElement(name)
+    parent.appendChild(node)
+    if value is not None:
+        text = doc.createTextNode(value)
+        node.appendChild(text)
+
+    return node
+
+
 def generate_imdb(id):
     """
     Generates the XML for the specified IMDB ID.
@@ -55,18 +80,36 @@ def generate_imdb(id):
     # parse html
     soup = BeautifulSoup(r.content, "html.parser")
 
-    result = minidom.Document()
+    doc = minidom.Document()
     for script in soup.findAll("script", type="application/ld+json"):
         j = json.loads(script.text)
-        logger.info(j)
-        root = result.createElement("movie")
-        result.appendChild(root)
-        title = result.createElement("title")
-        root.appendChild(title)
-        text = result.createTextNode(j["name"])
-        title.appendChild(text)
+        logger.debug(j)
 
-    return result
+        root = add_node(doc, doc, "movie")
+        add_node(doc, root, "title", j["name"])
+        uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
+        uniqueid.setAttribute("type", "imdb")
+        uniqueid.setAttribute("default", "true")
+        add_node(doc, root, "plot", j["description"])
+        add_node(doc, root, "outline", j["description"])
+        add_node(doc, root, "premiered", j["datePublished"])
+        if "director" in j and "name" in j["director"]:
+            add_node(doc, root, "director", j["director"]["name"])
+        for genre in j["genre"]:
+            add_node(doc, root, "genre", genre)
+        for actor in j["actor"]:
+            xactor = add_node(doc, root, "actor")
+            add_node(doc, xactor, "name", actor["name"])
+        if "trailer" in j and "embedUrl" in j["trailer"]:
+            add_node(doc, root, "trailer", "https://www.imdb.com" + j["trailer"]["embedUrl"])
+        if "aggregateRating" in j and "ratingValue" in j["aggregateRating"]:
+            xratings = add_node(doc, root, "ratings")
+            xrating = add_node(doc, xratings, "rating")
+            xrating.setAttribute("name", "imdb")
+            xrating.setAttribute("max", "10")
+            add_node(doc, xrating, "value", j["aggregateRating"]["ratingValue"])
+
+    return doc
 
 
 def determine_dirs(dir, recursive, result):
