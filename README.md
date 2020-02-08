@@ -18,9 +18,14 @@ You can install the tool with pip as follows:
 pip install kodi-nfo-generator
 ```
 
-## Command-line
+## Tools
 
-The following parameters can be supplied to the `kodi-nfo-gen` tool:
+### kodi-nfo-gen
+
+The `kodi-nfo-gen` tool can be used for pulling in the information from the 
+web using the IDs stored in the ID files.
+
+The following parameters can be supplied to the tool:
 
 ```
 usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
@@ -63,12 +68,42 @@ optional arguments:
                         False)
 ```
 
-## Example
 
-Assuming your movies are structured like this:
+### kodi-nfo-export
+
+Using the `kodi-nfo-export` tool, you can export your ID files in a CSV file, 
+associating them with the directory that they were located in. The tool also
+looks for `.nfo` files, in case you already have meta-data stored for your movies.  
+
+The following parameters can be supplied to the tool:
 
 ```
-movies
+usage: kodi-nfo-export [-h] --dir DIR [--recursive] [--type {imdb}]
+                       [--pattern GLOB] --output CSV [--verbose] [--debug]
+
+Exports Kodi ID/.nfo files to CSV, associating directories with IDs.
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --dir DIR       the directory to traverse (default: None)
+  --recursive     whether to traverse the directory recursively (default:
+                  False)
+  --type {imdb}   what type of ID the movie ID files represent, ie the website
+                  they are from (default: imdb)
+  --pattern GLOB  the pattern for the files that contain the movie IDs
+                  (default: *.imdb)
+  --output CSV    the CSV output file to store the collected information in
+                  (default: None)
+  --verbose       whether to output logging information (default: False)
+  --debug         whether to output debugging information (default: False)
+```
+
+## Examples
+
+For the following examples, we assume your movies are structured like this:
+
+```
+./mymovies
 |
 +- Metropolis
 |  |
@@ -93,6 +128,8 @@ movies
    +- Sunrise.imdb   # content: tt0018455
 ```
 
+### kodi-nfo-gen
+
 And for each movie an `.imdb` file with either the unique IMDB ID
 or the full IMDB URL is present.
 
@@ -100,7 +137,7 @@ Then you can the tool for generating the `.nfo` files like this:
 
 ```
 kodi-nfo-gen \
-  --dir ./movies \
+  --dir ./mymovies \
   --recursive \
   --verbose
 ```
@@ -110,8 +147,20 @@ you can use the following command-line:
 
 ```
 kodi-nfo-gen \
-  --dir ./movies \
+  --dir ./mymovies \
   --recursive \
   --fanart download \
   --verbose
 ```  
+
+### kodi-nfo-export
+
+The following command-line exports all the movies from the `./mymovies` directory as a CSV file `./list.csv`
+
+```
+kodi-nfo-export \
+  --dir ./mymovies \
+  --output ./list.csv \
+  --recursive \
+  --verbose
+```

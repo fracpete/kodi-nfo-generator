@@ -15,6 +15,7 @@
 # Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
 
 import os
+from xml.dom import minidom
 
 
 def determine_dirs(dir, recursive, result):
@@ -50,3 +51,26 @@ def read_id(id_path):
     with open(id_path, "r") as id_file:
         id = id_file.readline()
         return id.strip()
+
+
+def read_id_from_nfo(nfo_path, idtype):
+    """
+    Reads the ID from the specified .nfo file.
+
+    :param nfo_path: the .nfo file to read
+    :type nfo_path: str
+    :param idtype: what type of IDs to extract from .nfo files (choices: 'imdb')
+    :type idtype: str
+    :return: the ID
+    :rtype: str
+    """
+
+    id = ""
+    doc = minidom.parse(nfo_path)
+    items = doc.getElementsByTagName('uniqueid')
+    for item in items:
+        if "type" in item.attributes and item.attributes["type"].value == idtype:
+            id = item.firstChild.data
+            break
+
+    return id.strip()

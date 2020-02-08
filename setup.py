@@ -58,6 +58,7 @@ setup(
     entry_points={
         "console_scripts": [
             "kodi-nfo-gen=kodi.generator:sys_main",
+            "kodi-nfo-export=kodi.export:sys_main",
         ]
     }
 )
