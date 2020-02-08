@@ -99,8 +99,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
 def main(args=None):
     """
-    Runs a classifier from the command-line. Calls JVM start/stop automatically.
-    Use -h to see all options.
+    Runs the .nfo generation.
+    Use -h/--help to see all options.
 
     :param args: the command-line arguments to use, uses sys.argv if None
     :type args: list
