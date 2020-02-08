@@ -102,8 +102,11 @@ def generate_imdb(id, language="en"):
         add_node(doc, root, "premiered", j["datePublished"])
         if "director" in j and "name" in j["director"]:
             add_node(doc, root, "director", j["director"]["name"])
-        for genre in j["genre"]:
-            add_node(doc, root, "genre", genre)
+        if isinstance(j["genre"], list):
+            for genre in j["genre"]:
+                add_node(doc, root, "genre", genre)
+        else:
+            add_node(doc, root, "genre", j["genre"])
         for actor in j["actor"]:
             xactor = add_node(doc, root, "actor")
             add_node(doc, xactor, "name", actor["name"])
