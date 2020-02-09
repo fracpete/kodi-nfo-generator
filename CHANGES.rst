@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.2 (????-??-??)
+0.0.2 (2020-02-09)
 ------------------
 
 - added ability to export movie IDs to a CSV file using `kodi-nfo-export`
