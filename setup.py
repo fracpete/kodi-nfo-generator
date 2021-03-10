@@ -53,7 +53,7 @@ setup(
     author_email='fracpete@gmail.com',
     install_requires=[
         "requests",
-        "beautifulsoup4",
+        "beautifulsoup4<=4.6.0",
     ],
     entry_points={
         "console_scripts": [
