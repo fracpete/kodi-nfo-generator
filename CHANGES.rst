@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.3 (2021-03-11)
+------------------
+
+- restricting beautifulsoup version to <=4.6.0 as newer versions fail:
+  https://github.com/fracpete/kodi-nfo-generator/issues/2
+
+
 0.0.2 (2020-02-09)
 ------------------
 
