@@ -65,14 +65,17 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", nf
     doc = minidom.Document()
 
     widget = soup.find("div", id="star-rating-widget")
-    preflang_title = widget["data-title"]
+    if widget is None:
+        preflang_title = None
+    else:
+        preflang_title = widget["data-title"]
 
     for script in soup.findAll("script", type="application/ld+json"):
         j = json.loads(script.text)
         logger.debug(j)
 
         root = add_node(doc, doc, "movie")
-        add_node(doc, root, "title", preflang_title)
+        add_node(doc, root, "title", j['name'] if preflang_title is None else preflang_title)
         add_node(doc, root, "originaltitle", j["name"])
         uniqueid = add_node(doc, root, "uniqueid", j["url"].replace("/title/", "").replace("/", ""))
         uniqueid.setAttribute("type", "imdb")
@@ -100,7 +103,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", nf
             xrating = add_node(doc, xratings, "rating")
             xrating.setAttribute("name", "imdb")
             xrating.setAttribute("max", "10")
-            add_node(doc, xrating, "value", j["aggregateRating"]["ratingValue"])
+            add_node(doc, xrating, "value", str(j["aggregateRating"]["ratingValue"]))
 
         if fanart == "download":
             if "image" in j:
