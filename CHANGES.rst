@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.4 (2021-05-29)
+------------------
+
+- ratingValue is now set as string, not float; better handling when 
+  preflang_title not available
+
+
 0.0.3 (2021-03-11)
 ------------------
 
