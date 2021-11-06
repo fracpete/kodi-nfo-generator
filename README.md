@@ -10,6 +10,13 @@ the default is `*.imdb`, containing the unique IMDB movie ID (or full IMDB movie
 The tool will then scour the movie directories for these files and pull in the
 information and create the `.nfo` files in the same location.
 
+It is also possible to pull in information about episodes of a TV series. Though this
+is slow due to a lot more API calls. In this case, [.nfo](https://kodi.wiki/view/NFO_files/Episodes) 
+files for TV episodes are being generated. The video files need to have the pattern
+`S01E01` in the file name to be recognized by kodi (and the generator). The episodes
+can either be in the same directory of the .nfo file of the series or in sub-directories.  
+
+
 ## Installation
 
 You can install the tool with pip as follows:
@@ -32,8 +39,8 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--pattern GLOB] [--delay SECONDS]
                     [--preferred_language LANG]
                     [--fanart {none,download,use-existing}]
-                    [--fanart_file FILE] [--dry_run] [--overwrite] [--verbose]
-                    [--debug] [--interactive]
+                    [--fanart_file FILE] [--episodes] [--dry_run]
+                    [--overwrite] [--verbose] [--debug] [--interactive]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
 files containing the unique IMDB movie ID.
@@ -57,6 +64,8 @@ optional arguments:
                         how to deal with fan-art (default: none)
   --fanart_file FILE    when downloading or using existing fanart, use this
                         filename (default: folder.jpg)
+  --episodes            whether to generte .nfo files for episdes as well
+                        (default: False)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
                         (default: False)

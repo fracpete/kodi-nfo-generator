@@ -14,6 +14,7 @@
 # imdb_series.py
 # Copyright (C) 2021 Fracpete (fracpete at gmail dot com)
 
+import re
 import logging
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -58,13 +59,13 @@ def create_episodes_url(id, season=None):
     return result
 
 
-def list_episodes(soup):
+def extract_seasons(soup):
     """
-    Extracts the episodes from this parsed IMDB page.
+    Extracts the seasons from this parsed IMDB page.
 
     :param soup: the parsed document
     :type soup: BeautifulSoup
-    :return: the list of episodes (strings)
+    :return: the list of seasons (strings)
     :rtype: list
     """
     result = []
@@ -80,8 +81,10 @@ def extract_episodes(soup, season):
     The unique ID is stored under "_uniqueid", the rating data under "_rating",
     all other keys are the relevant XML tags.
 
-    :param soup: the parsed episode page
+    :param soup: the parsed season page
     :type soup: BeautifulSoup
+    :param season: the season of this page
+    :type season: str
     :return: the dictionary with episodes (episode -> data dict)
     :rtype: dict
     """
@@ -108,7 +111,7 @@ def extract_episodes(soup, season):
 
         # plot
         plot_tag = ep_data_tag.find("div", attrs={"itemprop": "description", "class": "item_description"})
-        if plot_tag is None:
+        if (plot_tag is None) or (plot_tag.string is None):
             plot = None
         else:
             plot = plot_tag.string.strip()
@@ -173,7 +176,7 @@ def episode_to_xml(episode_data):
     for k in episode_data:
         if k.startswith("_"):
             continue
-        if k == "aired":
+        if (k == "aired") and (episode_data[k] is not None):
             add_node(doc, root, k, episode_data[k].strftime("%Y-%m-%d"))
         else:
             add_node(doc, root, k, episode_data[k])
@@ -191,3 +194,23 @@ def episode_to_xml(episode_data):
         add_node(doc, rating, "votes", str(episode_data["_rating"]["votes"]))
 
     return doc
+
+
+def extract_season_episode(path):
+    """
+    Extracts season and episode from the file path (format: *S??E??*).
+
+    :param path: the path to extract the season/episode from
+    :type path: str
+    :return: the list of season/episode, None if no match
+    :rtype: list
+    """
+    p = re.compile(".*S([0-9][0-9]?)E([0-9][0-9]?).*")
+    m = p.match(path)
+    if m is None:
+        return None
+    result = m.groups()
+    if len(result) == 2:
+        return [str(int(x)) for x in result]
+    else:
+        return None

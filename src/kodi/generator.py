@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # generator.py
-# Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2021 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
@@ -28,9 +28,9 @@ logger = logging.getLogger("kodi.generator")
 
 
 def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
-             language="en", fanart="none", fanart_file="folder.jpg", interactive=False):
+             language="en", fanart="none", fanart_file="folder.jpg", interactive=False, episodes=False):
     """
-    Traverses the directory Generates the .nfo files.
+    Traverses the directory and generates the .nfo files.
 
     :param dir: the directory to traverse
     :type dir: str
@@ -54,6 +54,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     :type fanart_file: str
     :param interactive: whether to use interactive mode
     :type interactive: bool
+    :param episodes: whether to generate episode information as well
+    :type episodes: bool
     """
 
     dirs = []
@@ -72,9 +74,10 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
             xml_path = os.path.join(d, os.path.splitext(id_filename)[0] + ".nfo")
             logger.info("ID file: %s" % id_path)
 
+            write_file = True
             if not overwrite and os.path.exists(xml_path):
+                write_file = False
                 logger.info(".nfo file already exists, skipping")
-                continue
 
             id = read_id(id_path)
             logger.info("ID: %s" % id)
@@ -88,14 +91,15 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
             try:
                 if idtype == "imdb":
                     doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                        nfo_file=xml_path)
+                                        xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
+                                        dry_run=dry_run)
                 else:
                     logger.critical("Unhandled ID type: %s" % idtype)
                     return
                 xml_str = doc.toprettyxml(indent="  ")
                 if dry_run:
                     print(xml_str)
-                else:
+                elif write_file:
                     logger.info("Writing .nfo file: %s" % xml_path)
                     with open(xml_path, "w") as xml_file:
                         xml_file.write(xml_str)
@@ -129,6 +133,7 @@ def main(args=None):
     parser.add_argument("--preferred_language", metavar="LANG", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
     parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "use-existing"], default="none", required=False, help="how to deal with fan-art")
     parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
+    parser.add_argument("--episodes", action="store_true", dest="episodes", required=False, help="whether to generte .nfo files for episdes as well")
     parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
@@ -148,7 +153,8 @@ def main(args=None):
         logger.info("Entering interactive mode")
     generate(dir=parsed.dir, idtype=parsed.type, recursive=parsed.recursive, pattern=parsed.pattern,
              dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language,
-             fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive)
+             fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive,
+             episodes=parsed.episodes)
 
 
 def sys_main():
