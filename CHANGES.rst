@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.0.5 (2021-11-06)
+------------------
+
+- `setup.py` excludes versions of beautifulsoup that don't work
+  (https://github.com/fracpete/kodi-nfo-generator/issues/2)
+- added experimental support for generating .nfo output for TV series episodes
+  (https://github.com/fracpete/kodi-nfo-generator/issues/1)
+
+
 0.0.4 (2021-05-29)
 ------------------
 
