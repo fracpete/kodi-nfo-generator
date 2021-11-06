@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # imdb.py
-# Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2021 Fracpete (fracpete at gmail dot com)
 
 from bs4 import BeautifulSoup
 import json
@@ -123,6 +123,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", nf
         elif fanart == "use-existing":
             xthumb = add_node(doc, root, "thumb", fanart_file)
             xthumb.setAttribute("aspect", "poster")
+        elif fanart == "none":
+            pass
         else:
             logger.critical("Ignoring unhandled fanart type: %s" % fanart)
 
