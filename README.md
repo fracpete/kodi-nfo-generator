@@ -36,7 +36,7 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--debug] [--interactive]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
-files with the unique IMDB movie ID.
+files containing the unique IMDB movie ID.
 
 optional arguments:
   -h, --help            show this help message and exit

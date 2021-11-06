@@ -118,7 +118,7 @@ def main(args=None):
     """
 
     parser = argparse.ArgumentParser(
-        description='Generates Kodi .nfo files with information retrieved from IMDB using local files with the unique IMDB movie ID.',
+        description='Generates Kodi .nfo files with information retrieved from IMDB using local files containing the unique IMDB movie ID.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         prog="kodi-nfo-gen")
     parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
