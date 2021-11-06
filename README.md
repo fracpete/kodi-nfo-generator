@@ -10,8 +10,8 @@ the default is `*.imdb`, containing the unique IMDB movie ID (or full IMDB movie
 The tool will then scour the movie directories for these files and pull in the
 information and create the `.nfo` files in the same location.
 
-It is also possible to pull in information about episodes of a TV series. Though this
-is slow due to a lot more API calls. In this case, [.nfo](https://kodi.wiki/view/NFO_files/Episodes) 
+It is also possible to pull in information about episodes of a TV series (`--episodes``). 
+Though this is slow due to a lot more API calls. In this case, [.nfo](https://kodi.wiki/view/NFO_files/Episodes) 
 files for TV episodes are being generated. The video files need to have the pattern
 `S01E01` in the file name to be recognized by kodi (and the generator). The episodes
 can either be in the same directory of the .nfo file of the series or in sub-directories.  
