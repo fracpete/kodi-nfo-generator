@@ -105,9 +105,10 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
                     add_node(doc, root, "genre", genre)
             else:
                 add_node(doc, root, "genre", j["genre"])
-        for actor in j["actor"]:
-            xactor = add_node(doc, root, "actor")
-            add_node(doc, xactor, "name", actor["name"])
+        if "actor" in j:
+            for actor in j["actor"]:
+                xactor = add_node(doc, root, "actor")
+                add_node(doc, xactor, "name", actor["name"])
         if "trailer" in j and "embedUrl" in j["trailer"]:
             add_node(doc, root, "trailer", "https://www.imdb.com" + j["trailer"]["embedUrl"])
         if "aggregateRating" in j and "ratingValue" in j["aggregateRating"]:
