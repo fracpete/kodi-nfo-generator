@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.6 (2022-08-18)
+------------------
+
+- not all movie meta-data contains the `actor` field, now checking whether present
+  (https://github.com/fracpete/kodi-nfo-generator/pull/4)
+
+
 0.0.5 (2021-11-06)
 ------------------
 

@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # setup.py
-# Copyright (C) 2020-2021 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2022 Fracpete (fracpete at gmail dot com)
 
 from setuptools import setup
 
@@ -48,7 +48,7 @@ setup(
     packages=[
         "kodi",
     ],
-    version="0.0.5",
+    version="0.0.6",
     author='Peter "fracpete" Reutemann',
     author_email='fracpete@gmail.com',
     install_requires=[
