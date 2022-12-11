@@ -31,7 +31,7 @@ logger = logging.getLogger("kodi.imdb")
 
 
 def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xml_path=None, episodes=False, path=None,
-                  overwrite=False, dry_run=False):
+                  overwrite=False, dry_run=False, ua="Mozilla"):
     """
     Generates the XML for the specified IMDB ID.
 
@@ -67,7 +67,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     logger.info("IMDB URL: " + url)
 
     # retrieve html
-    r = requests.get(url, headers={"Accept-Language": language})
+    r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
     if r.status_code != 200:
         logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
 
@@ -148,7 +148,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
                 # determine seasons
                 url = create_episodes_url(id)
                 logger.info("Default episodes URL: %s" % url)
-                r = requests.get(url, headers={"Accept-Language": language})
+                r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
                 if r.status_code != 200:
                     logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
                     continue
@@ -162,7 +162,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
                     season_data[season] = {}
                     url = create_episodes_url(id, season=season)
                     logger.info("Season %s URL: %s" % (season, url))
-                    r = requests.get(url, headers={"Accept-Language": language})
+                    r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
                     if r.status_code != 200:
                         logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
                         continue
