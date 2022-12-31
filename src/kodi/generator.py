@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # generator.py
-# Copyright (C) 2020-2022 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2021 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
@@ -28,7 +28,8 @@ logger = logging.getLogger("kodi.generator")
 
 
 def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
-             language="en", fanart="none", fanart_file="folder.jpg", interactive=False, episodes=False):
+             language="en", fanart="none", fanart_file="folder.jpg", interactive=False, episodes=False,
+             ua="Mozilla"):
     """
     Traverses the directory and generates the .nfo files.
 
@@ -56,6 +57,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     :type interactive: bool
     :param episodes: whether to generate episode information as well
     :type episodes: bool
+    :param ua: User agent for requests
+    :type ua: str
     """
 
     dirs = []
@@ -89,21 +92,20 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                     break
 
             try:
-                if write_file:
-                    if idtype == "imdb":
-                        doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                            xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
-                                            dry_run=dry_run)
-                    else:
-                        logger.critical("Unhandled ID type: %s" % idtype)
-                        return
-                    xml_str = doc.toprettyxml(indent="  ")
-                    if dry_run:
-                        print(xml_str)
-                    elif write_file:
-                        logger.info("Writing .nfo file: %s" % xml_path)
-                        with open(xml_path, "w") as xml_file:
-                            xml_file.write(xml_str)
+                if idtype == "imdb":
+                    doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                        xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
+                                        dry_run=dry_run, ua=ua)
+                else:
+                    logger.critical("Unhandled ID type: %s" % idtype)
+                    return
+                xml_str = doc.toprettyxml(indent="  ")
+                if dry_run:
+                    print(xml_str)
+                elif write_file:
+                    logger.info("Writing .nfo file: %s" % xml_path)
+                    with open(xml_path, "w") as xml_file:
+                        xml_file.write(xml_str)
             except Exception:
                 logger.info(traceback.format_exc())
 
@@ -140,6 +142,7 @@ def main(args=None):
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
     parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
+    parser.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla", help="User agent for HTTP requests")
     parsed = parser.parse_args(args=args)
     # interactive mode turns on verbose mode
     if parsed.interactive and not (parsed.verbose or parsed.debug):
@@ -155,7 +158,7 @@ def main(args=None):
     generate(dir=parsed.dir, idtype=parsed.type, recursive=parsed.recursive, pattern=parsed.pattern,
              dry_run=parsed.dry_run, overwrite=parsed.overwrite, language=parsed.language,
              fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive,
-             episodes=parsed.episodes)
+             episodes=parsed.episodes, ua=parsed.user_agent)
 
 
 def sys_main():
