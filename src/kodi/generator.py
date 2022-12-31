@@ -91,8 +91,8 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                 else:
                     break
 
-            try:
-                if write_file:
+            if write_file:
+                try:
                     if idtype == "imdb":
                         doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
                                             xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
@@ -107,13 +107,13 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                         logger.info("Writing .nfo file: %s" % xml_path)
                         with open(xml_path, "w") as xml_file:
                             xml_file.write(xml_str)
-            except Exception:
-                logger.info(traceback.format_exc())
+                except Exception:
+                    logger.info(traceback.format_exc())
 
-            if interactive and not proceed():
-                break
-            if delay > 0:
-                time.sleep(delay)
+                if interactive and not proceed():
+                    break
+                if delay > 0:
+                    time.sleep(delay)
 
 
 def main(args=None):
