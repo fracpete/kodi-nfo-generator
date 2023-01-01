@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # imdb.py
-# Copyright (C) 2020-2021 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
 from bs4 import BeautifulSoup
 import fnmatch
@@ -53,6 +53,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     :type overwrite: bool
     :param dry_run: whether to perform a 'dry-run', ie generating .nfo content but not saving them (only outputting them to stdout)
     :type dry_run: bool
+    :param ua: the user agent to use, ignore if empty string or None
+    :type ua: str
     :return: the generated XML DOM
     :rtype: minidom.Document
     """
@@ -67,7 +69,10 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     logger.info("IMDB URL: " + url)
 
     # retrieve html
-    r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
+    headers = {"Accept-Language": language}
+    if (ua is not None) and (ua != ""):
+        headers['user-agent'] = ua
+    r = requests.get(url, headers=headers)
     if r.status_code != 200:
         logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
 
@@ -121,7 +126,10 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
         if fanart == "download":
             if "image" in j:
                 logger.info("Downloading fanart: %s" % j["image"])
-                r = requests.get(j["image"], stream=True)
+                if (ua is not None) and (ua != ""):
+                    r = requests.get(j["image"], headers={'user-agent': ua}, stream=True)
+                else:
+                    r = requests.get(j["image"], stream=True)
                 if r.status_code == 200:
                     fanart_path = os.path.join(os.path.dirname(xml_path), fanart_file)
                     with open(fanart_path, 'wb') as f:
