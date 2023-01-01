@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.0.7 (????-??-??)
+------------------
+
+- adding `user-agent` to request headers now (https://github.com/fracpete/kodi-nfo-generator/pull/6)
+- only making IMDB request when `--overwrite` flag present or `.nfo` not present, to avoid making
+  too many calls to IMDB
+- the `--delay` no longer applies when not writing a file
+
+
 0.0.6 (2022-08-18)
 ------------------
 
