@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # generator.py
-# Copyright (C) 2020-2022 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
@@ -64,7 +64,7 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
     dirs = []
     determine_dirs(dir, recursive, dirs)
     dirs.sort()
-    logger.info("Dirs: %s" % ",".join(dirs))
+    logger.info("# dirs: %d" % len(dirs))
     if interactive:
         delay = 0
 
@@ -77,11 +77,6 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
             xml_path = os.path.join(d, os.path.splitext(id_filename)[0] + ".nfo")
             logger.info("ID file: %s" % id_path)
 
-            write_file = True
-            if not overwrite and os.path.exists(xml_path):
-                write_file = False
-                logger.info(".nfo file already exists, skipping")
-
             id = read_id(id_path)
             logger.info("ID: %s" % id)
 
@@ -91,22 +86,18 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                 else:
                     break
 
-            if write_file:
+            if os.path.exists(xml_path) and not overwrite:
+                logger.info(".nfo file already exists, skipping: %s" % xml_path)
+
+            if overwrite or not os.path.exists(xml_path):
                 try:
                     if idtype == "imdb":
-                        doc = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                            xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
-                                            dry_run=dry_run, ua=ua)
+                        generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                      xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
+                                      dry_run=dry_run, ua=ua)
                     else:
                         logger.critical("Unhandled ID type: %s" % idtype)
                         return
-                    xml_str = doc.toprettyxml(indent="  ")
-                    if dry_run:
-                        print(xml_str)
-                    elif write_file:
-                        logger.info("Writing .nfo file: %s" % xml_path)
-                        with open(xml_path, "w") as xml_file:
-                            xml_file.write(xml_str)
                 except Exception:
                     logger.info(traceback.format_exc())
 

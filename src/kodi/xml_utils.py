@@ -12,9 +12,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # xml_utils.py
-# Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
-from xml.dom import minidom
+import os
 
 
 def add_node(doc, parent, name, value=None):
@@ -40,3 +40,29 @@ def add_node(doc, parent, name, value=None):
         node.appendChild(text)
 
     return node
+
+
+def output_xml(doc, xml_path, dry_run=False, overwrite=False, logger=None):
+    """
+    Outputs the XML document. Can throw an exception if writing fails.
+
+    :param doc: the XML document to output
+    :param xml_path: the file to (potentially) write to
+    :type xml_path: str
+    :param dry_run: whether this is just a test run
+    :type dry_run: bool
+    :param overwrite: whether to overwrite existing files
+    :type overwrite: bool
+    :param logger: the logger instance to use for outputting logging information
+    """
+    xml_str = doc.toprettyxml(indent="  ")
+    if dry_run:
+        print(xml_str)
+    else:
+        if os.path.exists(xml_path) and not overwrite:
+            logger.info(".nfo file already exists, skipping: %s" % xml_path)
+        else:
+            if logger is not None:
+                logger.info("Writing .nfo file: %s" % xml_path)
+            with open(xml_path, "w") as xml_file:
+                xml_file.write(xml_str)

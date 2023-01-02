@@ -22,7 +22,7 @@ import os
 import requests
 from xml.dom import minidom
 from kodi.io_utils import determine_dirs
-from kodi.xml_utils import add_node
+from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
     extract_season_episode
 
@@ -55,10 +55,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     :type dry_run: bool
     :param ua: the user agent to use, ignore if empty string or None
     :type ua: str
-    :return: the generated XML DOM
-    :rtype: minidom.Document
     """
-
     id = id.strip()
 
     # generate URL
@@ -149,60 +146,57 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
         else:
             logger.critical("Ignoring unhandled fanart type: %s" % fanart)
 
-        if episodes:
-            if has_episodes(soup):
-                logger.info("Has episode data")
+        # output .nfo
+        output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger)
 
-                # determine seasons
-                url = create_episodes_url(id)
-                logger.info("Default episodes URL: %s" % url)
+        if not episodes:
+            continue
+
+        if has_episodes(soup):
+            logger.info("Has episode data")
+
+            # determine seasons
+            url = create_episodes_url(id)
+            logger.info("Default episodes URL: %s" % url)
+            r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
+            if r.status_code != 200:
+                logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
+                continue
+            soup_ep = BeautifulSoup(r.content, "html.parser")
+            seasons = extract_seasons(soup_ep)
+            logger.info("Seasons: %s" % ", ".join(seasons))
+
+            # extract episodes
+            season_data = {}
+            for season in seasons:
+                season_data[season] = {}
+                url = create_episodes_url(id, season=season)
+                logger.info("Season %s URL: %s" % (season, url))
                 r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
                 if r.status_code != 200:
                     logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
                     continue
                 soup_ep = BeautifulSoup(r.content, "html.parser")
-                seasons = extract_seasons(soup_ep)
-                logger.info("Seasons: %s" % ", ".join(seasons))
+                episodes_data = extract_episodes(soup_ep, season)
+                for k in episodes_data:
+                    xml = episode_to_xml(episodes_data[k])
+                    season_data[season][k] = xml
 
-                # extract episodes
-                season_data = {}
-                for season in seasons:
-                    season_data[season] = {}
-                    url = create_episodes_url(id, season=season)
-                    logger.info("Season %s URL: %s" % (season, url))
-                    r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
-                    if r.status_code != 200:
-                        logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
+            # locate files and output XML
+            dirs = []
+            determine_dirs(path, True, dirs)
+            for d in dirs:
+                files = fnmatch.filter(os.listdir(d), "*S??E??*.*")
+                for f in files:
+                    if f.endswith(".nfo"):
                         continue
-                    soup_ep = BeautifulSoup(r.content, "html.parser")
-                    episodes_data = extract_episodes(soup_ep, season)
-                    for k in episodes_data:
-                        xml = episode_to_xml(episodes_data[k])
-                        season_data[season][k] = xml
+                    parts = extract_season_episode(f)
+                    if parts is None:
+                        continue
+                    s, e = parts
+                    if (s in season_data) and (e in season_data[s]):
+                        xml_path = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
+                        output_xml(season_data[s][e], xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger)
 
-                # locate files and output XML
-                dirs = []
-                determine_dirs(path, True, dirs)
-                for d in dirs:
-                    files = fnmatch.filter(os.listdir(d), "*S??E??*.*")
-                    for f in files:
-                        if f.endswith(".nfo"):
-                            continue
-                        parts = extract_season_episode(f)
-                        if parts is None:
-                            continue
-                        s, e = parts
-                        if (s in season_data) and (e in season_data[s]):
-                            xml_path = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
-                            xml_str = season_data[s][e].toprettyxml(indent="  ")
-                            if dry_run:
-                                print(xml_str)
-                            elif os.path.exists(xml_path) and not overwrite:
-                                continue
-                            with open(xml_path, "w") as xml_path:
-                                xml_path.write(xml_str)
-
-            else:
-                logger.info("Has no episode data")
-
-    return doc
+        else:
+            logger.info("Has no episode data")
