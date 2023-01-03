@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # setup.py
-# Copyright (C) 2020-2022 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
 from setuptools import setup
 
@@ -30,7 +30,7 @@ def _read(f):
 
 setup(
     name="kodi-nfo-generator",
-    description=" Simple Python-based command-line tool to generate .nfo files for movies for Kodi. ",
+    description=" Simple Python-based command-line tool to generate .nfo files for movies and TV shows for Kodi. ",
     long_description=(
         _read('DESCRIPTION.rst') + b'\n' +
         _read('CHANGES.rst')).decode('utf-8'),
@@ -48,7 +48,7 @@ setup(
     packages=[
         "kodi",
     ],
-    version="0.0.6",
+    version="0.0.7",
     author='Peter "fracpete" Reutemann',
     author_email='fracpete@gmail.com',
     install_requires=[

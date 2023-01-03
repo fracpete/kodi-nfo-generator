@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.7 (????-??-??)
+0.0.7 (2023-01-03)
 ------------------
 
 - adding `user-agent` to request headers now (https://github.com/fracpete/kodi-nfo-generator/pull/6)
