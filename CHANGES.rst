@@ -8,6 +8,9 @@ Changelog
 - only making IMDB request when `--overwrite` flag present or `.nfo` not present, to avoid making
   too many calls to IMDB
 - the `--delay` no longer applies when not writing a file
+- fixed TV show .nfo generation (https://github.com/fracpete/kodi-nfo-generator/issues/1)
+- added `download-missing` choice for downloading fanart only when it is missing locally
+  (`download` always performs a download)
 
 
 0.0.6 (2022-08-18)

@@ -38,9 +38,10 @@ The following parameters can be supplied to the tool:
 usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--pattern GLOB] [--delay SECONDS]
                     [--preferred_language LANG]
-                    [--fanart {none,download,use-existing}]
+                    [--fanart {none,download,download-missing,use-existing}]
                     [--fanart_file FILE] [--episodes] [--dry_run]
                     [--overwrite] [--verbose] [--debug] [--interactive]
+                    [--user-agent USER_AGENT]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
 files containing the unique IMDB movie ID.
@@ -60,7 +61,7 @@ optional arguments:
                         the preferred language for the titles (ISO 639-1, see
                         https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
                         (default: en)
-  --fanart {none,download,use-existing}
+  --fanart {none,download,download-missing,use-existing}
                         how to deal with fan-art (default: none)
   --fanart_file FILE    when downloading or using existing fanart, use this
                         filename (default: folder.jpg)
@@ -76,6 +77,8 @@ optional arguments:
   --debug               whether to output debugging information (default:
                         False)
   --interactive         for enabling interactive mode (default: False)
+  --user-agent USER_AGENT, --ua USER_AGENT
+                        User agent for HTTP requests (default: Mozilla)
 ```
 
 

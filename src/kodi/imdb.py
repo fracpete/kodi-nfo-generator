@@ -124,7 +124,9 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
             xrating.setAttribute("max", "10")
             add_node(doc, xrating, "value", str(j["aggregateRating"]["ratingValue"]))
 
-        if fanart == "download":
+        # fanart
+        fanart_path = os.path.join(os.path.dirname(xml_path), fanart_file)
+        if (fanart == "download") or ((fanart == "download-missing") and not os.path.exists(fanart_path)):
             if "image" in j:
                 logger.info("Downloading fanart: %s" % j["image"])
                 if (ua is not None) and (ua != ""):
@@ -132,7 +134,6 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
                 else:
                     r = requests.get(j["image"], stream=True)
                 if r.status_code == 200:
-                    fanart_path = os.path.join(os.path.dirname(xml_path), fanart_file)
                     with open(fanart_path, 'wb') as f:
                         for chunk in r:
                             f.write(chunk)
