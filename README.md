@@ -65,7 +65,7 @@ optional arguments:
                         how to deal with fan-art (default: none)
   --fanart_file FILE    when downloading or using existing fanart, use this
                         filename (default: folder.jpg)
-  --episodes            whether to generte .nfo files for episdes as well
+  --episodes            whether to generte .nfo files for episodes as well
                         (default: False)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
