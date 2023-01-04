@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.8 (????-??-??)
+0.0.8 (2023-01-04)
 ------------------
 
 - added `kodi-nfo-guess` tool that performs online database searches for directories
