@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.8 (????-??-??)
+------------------
+
+- added `kodi-nfo-guess` tool that performs online database searches for directories
+  that miss meta-files, like `.imdb`, which the `kodi-nfo-gen` tool uses as input.
+
+
 0.0.7 (2023-01-03)
 ------------------
 

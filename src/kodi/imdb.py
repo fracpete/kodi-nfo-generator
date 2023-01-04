@@ -21,7 +21,7 @@ import logging
 import os
 import requests
 from xml.dom import minidom
-from kodi.io_utils import determine_dirs
+from kodi.io_utils import determine_dirs, prompt, read_id
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
     extract_season_episode
@@ -206,3 +206,77 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
 
         # output .nfo
         output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger)
+
+
+def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
+    """
+    Generates .imdb files using the user's selection of IMDB search results for the title.
+
+    :param title: the title to look for
+    :type title: str
+    :param meta_path: the file to store the IMDB title ID in
+    :type meta_path: str
+    :param language: the preferred language for the titles
+    :type language: str
+    :param dry_run: whether to perform a 'dry-run', ie generating .nfo content but not saving them (only outputting them to stdout)
+    :type dry_run: bool
+    :param ua: the user agent to use, ignore if empty string or None
+    :type ua: str
+    :return: whether to continue
+    :rtype: bool
+    """
+    url = "https://www.imdb.com/find/"
+    params = {'q': title}
+    headers = {"Accept-Language": language}
+    if (ua is not None) and (ua != ""):
+        headers['user-agent'] = ua
+    r = requests.get(url, params=params, headers=headers)
+    if r.status_code != 200:
+        logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
+
+    # in case we are overwriting files
+    tid = None
+    if os.path.exists(meta_path):
+        tid = read_id(meta_path)
+
+    # parse html
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    for script in soup.findAll("script", id="__NEXT_DATA__", type="application/json"):
+        j = json.loads(script.text)
+        logger.debug(j)
+        if ("props" not in j) or ("pageProps" not in j["props"]) or ("titleResults" not in j["props"]["pageProps"]):
+            continue
+        title_results = j["props"]["pageProps"]["titleResults"]
+        if "results" in title_results:
+            choices = []
+            if len(title_results["results"]) == 0:
+                print("0. No results, continue...")
+            else:
+                for i, result in enumerate(title_results["results"], start=1):
+                    # marker for current title?
+                    if (tid is not None) and (tid == result["id"]):
+                        current = " <-- current"
+                    else:
+                        current = ""
+                    print("%d. %s: %s (%s)%s" % (i, result["id"], result["titleNameText"], result["titleReleaseText"], current))
+                    choices.append(str(i))
+                print("0. None of the above, continue...")
+            print("X. Exit")
+            choices.append("0")
+            choices.append("X")
+            choice = prompt("Your selection (%s): ", choices=choices)
+            if choice == "X":
+                print("User requested exit.")
+                return False
+            elif choice == "0":
+                return True
+            else:
+                tid = title_results["results"][int(choice)-1]["id"]
+                if dry_run:
+                    print(tid)
+                else:
+                    logger.info("Writing ID %s to: %s" % (tid, meta_path))
+                    with open(meta_path, "w") as f:
+                        f.write(tid)
+                return True

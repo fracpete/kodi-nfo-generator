@@ -81,6 +81,52 @@ optional arguments:
                         User agent for HTTP requests (default: Mozilla)
 ```
 
+### kodi-nfo-guess
+
+The `kodi-nfo-guess` tool can be used for generating, e.g., the `.imdb`
+meta-files used by `kodi-nfo-gen`. It looks for directories that are missing
+the meta-files, then uses the particular movie database to look up titles
+that may match the directory name and the user then gets prompted to select the
+appropriate title. If there is a successful hit, the meta-file gets written.
+
+The following parameters can be supplied to the tool:
+
+```
+usage: kodi-nfo-guess [-h] --dir DIR [--type {imdb}] [--recursive]
+                      [--pattern GLOB] [--delay SECONDS]
+                      [--preferred_language LANG] [--dry_run] [--overwrite]
+                      [--verbose] [--debug] [--user-agent USER_AGENT]
+
+Generates output files for the kodi-nfo-gen tool.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --dir DIR             the directory to traverse (default: None)
+  --type {imdb}         what type of ID the movie ID files represent, ie the
+                        website they are from (default: imdb)
+  --recursive           whether to traverse the directory recursively
+                        (default: False)
+  --pattern GLOB        the pattern for the files that contain the movie IDs
+                        (default: *.imdb)
+  --delay SECONDS       the delay in seconds between web queries (to avoid
+                        blacklisting) (default: 1)
+  --preferred_language LANG
+                        the preferred language for the titles (ISO 639-1, see
+                        https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
+                        (default: en)
+  --dry_run             whether to perform a 'dry-run', ie only outputting the
+                        .nfo content to stdout but not saving it to files
+                        (default: False)
+  --overwrite           whether to overwrite existing .nfo files, ie
+                        recreating them with freshly retrieved data (default:
+                        False)
+  --verbose             whether to output logging information (default: False)
+  --debug               whether to output debugging information (default:
+                        False)
+  --user-agent USER_AGENT, --ua USER_AGENT
+                        User agent for HTTP requests (default: Mozilla)
+```
+
 
 ### kodi-nfo-export
 
@@ -113,7 +159,7 @@ optional arguments:
   --interactive   for enabling interactive mode (default: False)
 ```
 
-## kodi-nfo-import
+### kodi-nfo-import
 
 With the `kodi-nfo-import` tool, you can import IDs from a CSV file and create ID
 files in your movie directory structure.
