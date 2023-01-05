@@ -129,9 +129,9 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
         fanart_act = fanart
         if fanart_act == "download-missing":
             if os.path.exists(fanart_path):
-                fanart_act = "download"
+                fanart_act = "use-existing"
             else:
-                fanart_act = "none"
+                fanart_act = "download"
         if fanart_act == "download":
             if "image" in j:
                 logger.info("Downloading fanart: %s" % j["image"])
