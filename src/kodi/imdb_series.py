@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # imdb_series.py
-# Copyright (C) 2021 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2021-2023 Fracpete (fracpete at gmail dot com)
 
 import re
 import logging
@@ -196,21 +196,28 @@ def episode_to_xml(episode_data):
     return doc
 
 
-def extract_season_episode(path):
+def extract_season_episode(path, season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*"):
     """
     Extracts season and episode from the file path (format: *S??E??*).
 
     :param path: the path to extract the season/episode from
     :type path: str
+    :param season_group: the regular expression to extract the season (first group)
+    :type season_group: str
+    :param episode_group: the regular expression to extract the episode (first group)
+    :type episode_group: str
     :return: the list of season/episode, None if no match
     :rtype: list
     """
-    p = re.compile(".*S([0-9][0-9]?)E([0-9][0-9]?).*")
-    m = p.match(path)
-    if m is None:
+    pattern_s = re.compile(season_group)
+    pattern_e = re.compile(episode_group)
+    match_s = pattern_s.match(path)
+    match_e = pattern_e.match(path)
+    if (match_s is None) or (match_e is None):
         return None
-    result = m.groups()
-    if len(result) == 2:
-        return [str(int(x)) for x in result]
+    result_s = match_s.groups()
+    result_e = match_e.groups()
+    if (len(result_s) == 1) and (len(result_e) == 1):
+        return [str(int(result_s[0])), str(int(result_e[0]))]
     else:
         return None

@@ -9,6 +9,9 @@ Changelog
 - improved checks for existing `.nfo` files to reduce IMDB requests
 - added `kodi-nfo-rename` tool for renaming files using regular expressions
   (e.g., files of TV shows)
+- the `kodi-nfo-gen` tool now has additional options for matching episode files
+  rather than using hardcoded defaults: `--episode_pattern`, `--season_group`,
+  `--episode_group`.
 
 
 0.0.8 (2023-01-04)

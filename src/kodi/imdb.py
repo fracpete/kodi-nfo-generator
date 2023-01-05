@@ -30,8 +30,10 @@ from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons,
 logger = logging.getLogger("kodi.imdb")
 
 
-def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", episodes=False, path=None,
-                  overwrite=False, dry_run=False, ua="Mozilla"):
+def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", path=None, overwrite=False, dry_run=False,
+                  episodes=False, episode_pattern="*S??E??*.*",
+                  season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*",
+                  ua="Mozilla"):
     """
     Generates the XML for the specified IMDB ID.
 
@@ -43,14 +45,20 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", ep
     :type fanart: str
     :param fanart_file: the fanart filename to use (when downloading or re-using existing)
     :type fanart_file: str
-    :param episodes: whether to generate episode information as well
-    :type episodes: bool
     :param path: the current directory (used for determining episode files)
     :type path: str
     :param overwrite: whether to overwrite existing .nfo files (ie recreating them)
     :type overwrite: bool
     :param dry_run: whether to perform a 'dry-run', ie generating .nfo content but not saving them (only outputting them to stdout)
     :type dry_run: bool
+    :param episodes: whether to generate episode information as well
+    :type episodes: bool
+    :param episode_pattern: the pattern to use for locating episode files
+    :type episode_pattern: str
+    :param season_group: the regular expression to extract the season (first group)
+    :type season_group: str
+    :param episode_group: the regular expression to extract the episode (first group)
+    :type episode_group: str
     :param ua: the user agent to use, ignore if empty string or None
     :type ua: str
     :return: whether a file was generated
@@ -205,11 +213,11 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", ep
                 dirs = []
                 determine_dirs(path, True, dirs)
                 for d in dirs:
-                    files = fnmatch.filter(os.listdir(d), "*S??E??*.*")
+                    files = fnmatch.filter(os.listdir(d), episode_pattern)
                     for f in files:
                         if f.endswith(".nfo"):
                             continue
-                        parts = extract_season_episode(f)
+                        parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
                         if parts is None:
                             continue
                         s, e = parts

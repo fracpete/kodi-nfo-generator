@@ -39,8 +39,11 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--pattern GLOB] [--delay SECONDS]
                     [--preferred_language LANG]
                     [--fanart {none,download,download-missing,use-existing}]
-                    [--fanart_file FILE] [--episodes] [--dry_run]
-                    [--overwrite] [--verbose] [--debug] [--interactive]
+                    [--fanart_file FILE] [--episodes]
+                    [--episode_pattern EPISODE_PATTERN]
+                    [--season_group SEASON_GROUP]
+                    [--episode_group EPISODE_GROUP] [--dry_run] [--overwrite]
+                    [--verbose] [--debug] [--interactive]
                     [--user-agent USER_AGENT]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
@@ -65,8 +68,17 @@ optional arguments:
                         how to deal with fan-art (default: none)
   --fanart_file FILE    when downloading or using existing fanart, use this
                         filename (default: folder.jpg)
-  --episodes            whether to generte .nfo files for episodes as well
+  --episodes            whether to generate .nfo files for episodes as well
                         (default: False)
+  --episode_pattern EPISODE_PATTERN
+                        the shell pattern to use for locating episode files
+                        (default: *S??E??*.*)
+  --season_group SEASON_GROUP
+                        the regular expression to extract the season (first
+                        group) (default: .*S([0-9]?[0-9])E.*)
+  --episode_group EPISODE_GROUP
+                        the regular expression to extract the episode (first
+                        group) (default: .*E([0-9]?[0-9]).*)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
                         (default: False)
