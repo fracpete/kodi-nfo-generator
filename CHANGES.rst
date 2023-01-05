@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.9 (????-??-??)
+0.0.9 (2023-01-06)
 ------------------
 
 - using `download-missing` no longer generates `Ignoring unhandled fanart type: download-missing`
