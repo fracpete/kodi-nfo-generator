@@ -12,30 +12,34 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # io_utils.py
-# Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
 import fnmatch
 import os
 from xml.dom import minidom
 
+TAG_MOVIE = "movie"
+TAG_TVSHOW = "tvshow"
+FILENAME_TVSHOW = "tvshow.nfo"
 
-def determine_dirs(dir, recursive, result):
+
+def determine_dirs(path, recursive, result):
     """
     Determines all the directories to inspect.
 
-    :param dir: the top-level directory
-    :type dir: str
+    :param path: the top-level directory
+    :type path: str
     :param recursive: whether to look for directories recursively
     :type recursive: bool
     :param result: for storing the located dirs
     :type param: list
     """
 
-    result.append(dir)
+    result.append(path)
     if recursive:
-        files = os.listdir(dir)
+        files = os.listdir(path)
         for f in files:
-            full = os.path.join(dir, f)
+            full = os.path.join(path, f)
             if os.path.isdir(full):
                 determine_dirs(full, True, result)
 
@@ -77,14 +81,14 @@ def read_id_from_nfo(nfo_path, idtype):
     return id.strip()
 
 
-def guess_file_name(dir):
+def guess_file_name(path):
     """
     Tries to determine the filename (excl extension) for the specified directory.
     Looks for .nfo file, then video files (mp4, mkv, avi) and finally the base name
     of the directory itself.
 
-    :param dir: the directory to guess the file name for
-    :type dir: str
+    :param path: the directory to guess the file name for
+    :type path: str
     :return: the guessed file name (excl path)
     :rtype: str
     """
@@ -94,14 +98,14 @@ def guess_file_name(dir):
     # nfo or video file?
     exts = ["nfo", "mp4", "mkv", "avi"]
     for ext in exts:
-        filenames = fnmatch.filter(os.listdir(dir), "*." + ext)
+        filenames = fnmatch.filter(os.listdir(path), "*." + ext)
         if len(filenames) == 1:
             result = os.path.splitext(os.path.basename(filenames[0]))[0]
             break
 
     # directory
     if result is None:
-        result = os.path.basename(dir)
+        result = os.path.basename(path)
 
     return result
 
@@ -150,3 +154,28 @@ def skip():
     """
 
     return prompt(msg="Skip (%s)? ", choices=["y", "n"]) == "y"
+
+
+def get_nfo_file(path):
+    """
+    Checks whether an .nfo file is already present in the path and returns it.
+
+    :param path: the path to check for an existing .nfo file
+    :type path: str
+    :return: an existing .nfo file, otherwise None
+    :rtype: str
+    """
+    result = None
+
+    # movie
+    f = os.path.join(path, os.path.basename(path) + ".nfo")
+    if os.path.exists(f):
+        result = f
+
+    # tv show
+    if result is None:
+        f = os.path.join(path, FILENAME_TVSHOW)
+        if os.path.exists(f):
+            result = f
+
+    return result

@@ -86,25 +86,21 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                 else:
                     break
 
-            if os.path.exists(xml_path) and not overwrite:
-                logger.info(".nfo file already exists, skipping: %s" % xml_path)
+            try:
+                if idtype == "imdb":
+                    generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                  episodes=episodes, path=d, overwrite=overwrite,
+                                  dry_run=dry_run, ua=ua)
+                else:
+                    logger.critical("Unhandled ID type: %s" % idtype)
+                    return
+            except Exception:
+                logger.info(traceback.format_exc())
 
-            if overwrite or not os.path.exists(xml_path):
-                try:
-                    if idtype == "imdb":
-                        generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                      xml_path=xml_path, episodes=episodes, path=d, overwrite=overwrite,
-                                      dry_run=dry_run, ua=ua)
-                    else:
-                        logger.critical("Unhandled ID type: %s" % idtype)
-                        return
-                except Exception:
-                    logger.info(traceback.format_exc())
-
-                if interactive and not proceed():
-                    break
-                if delay > 0:
-                    time.sleep(delay)
+            if interactive and not proceed():
+                break
+            if delay > 0:
+                time.sleep(delay)
 
 
 def main(args=None):

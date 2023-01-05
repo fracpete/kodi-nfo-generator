@@ -21,7 +21,7 @@ import logging
 import os
 import requests
 from xml.dom import minidom
-from kodi.io_utils import determine_dirs, prompt, read_id
+from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
     extract_season_episode
@@ -29,12 +29,8 @@ from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons,
 # logging setup
 logger = logging.getLogger("kodi.imdb")
 
-TAG_MOVIE = "movie"
-TAG_TVSHOW = "tvshow"
-FILENAME_TVSHOW = "tvshow.nfo"
 
-
-def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xml_path=None, episodes=False, path=None,
+def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", episodes=False, path=None,
                   overwrite=False, dry_run=False, ua="Mozilla"):
     """
     Generates the XML for the specified IMDB ID.
@@ -47,8 +43,6 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     :type fanart: str
     :param fanart_file: the fanart filename to use (when downloading or re-using existing)
     :type fanart_file: str
-    :param xml_path: the current nfo full file path
-    :type xml_path: str
     :param episodes: whether to generate episode information as well
     :type episodes: bool
     :param path: the current directory (used for determining episode files)
@@ -59,8 +53,20 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
     :type dry_run: bool
     :param ua: the user agent to use, ignore if empty string or None
     :type ua: str
+    :return: whether a file was generated
+    :rtype: bool
     """
     id = id.strip()
+
+    # can we skip?
+    if not overwrite:
+        f = get_nfo_file(path)
+        if f is not None:
+            logger.info(".nfo file already exists, skipping: %s" % f)
+            return False
+
+    # default movie .nfo
+    xml_path = os.path.join(path, os.path.basename(path) + ".nfo")
 
     # generate URL
     if id.startswith("http"):
@@ -125,7 +131,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
             add_node(doc, xrating, "value", str(j["aggregateRating"]["ratingValue"]))
 
         # fanart
-        fanart_path = os.path.join(os.path.dirname(xml_path), fanart_file)
+        fanart_path = os.path.join(path, fanart_file)
         fanart_act = fanart
         if fanart_act == "download-missing":
             if os.path.exists(fanart_path):
@@ -160,8 +166,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
         if has_episodes(soup):
             logger.info("Has episode data")
 
-            # use special name rather than ID-based one
-            xml_path = os.path.join(os.path.dirname(xml_path), FILENAME_TVSHOW)
+            # use special name rather than name-based one
+            xml_path = os.path.join(path, FILENAME_TVSHOW)
 
             # update root tag
             root.tagName = TAG_TVSHOW

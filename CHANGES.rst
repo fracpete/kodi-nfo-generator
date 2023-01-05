@@ -6,6 +6,7 @@ Changelog
 
 - using `download-missing` no longer generates `Ignoring unhandled fanart type: download-missing`
   message when fanart already present (just an output bug).
+- improved checks for existing `.nfo` files to reduce IMDB requests
 
 
 0.0.8 (2023-01-04)
