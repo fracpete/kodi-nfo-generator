@@ -54,15 +54,20 @@ def output_xml(doc, xml_path, dry_run=False, overwrite=False, logger=None):
     :param overwrite: whether to overwrite existing files
     :type overwrite: bool
     :param logger: the logger instance to use for outputting logging information
+    :return: whether a file was generated
+    :rtype: bool
     """
     xml_str = doc.toprettyxml(indent="  ")
     if dry_run:
         print(xml_str)
+        return False
     else:
         if os.path.exists(xml_path) and not overwrite:
             logger.info(".nfo file already exists, skipping: %s" % xml_path)
+            return False
         else:
             if logger is not None:
                 logger.info("Writing .nfo file: %s" % xml_path)
             with open(xml_path, "w") as xml_file:
                 xml_file.write(xml_str)
+            return True

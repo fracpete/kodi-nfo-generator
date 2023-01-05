@@ -74,7 +74,6 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
         for id_filename in id_filenames:
             id_path = os.path.join(d, id_filename)
-            xml_path = os.path.join(d, os.path.splitext(id_filename)[0] + ".nfo")
             logger.info("ID file: %s" % id_path)
 
             id = read_id(id_path)
@@ -86,11 +85,12 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
                 else:
                     break
 
+            file_generated = False
             try:
                 if idtype == "imdb":
-                    generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
-                                  episodes=episodes, path=d, overwrite=overwrite,
-                                  dry_run=dry_run, ua=ua)
+                    file_generated = generate_imdb(id, language=language, fanart=fanart, fanart_file=fanart_file,
+                                                   episodes=episodes, path=d, overwrite=overwrite,
+                                                   dry_run=dry_run, ua=ua)
                 else:
                     logger.critical("Unhandled ID type: %s" % idtype)
                     return
@@ -99,7 +99,7 @@ def generate(dir, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_
 
             if interactive and not proceed():
                 break
-            if delay > 0:
+            if file_generated and (delay > 0):
                 time.sleep(delay)
 
 

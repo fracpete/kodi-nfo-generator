@@ -94,6 +94,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", ep
     else:
         preflang_title = widget["data-title"]
 
+    output_generated = False
     for script in soup.findAll("script", type="application/ld+json"):
         j = json.loads(script.text)
         logger.debug(j)
@@ -214,10 +215,14 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", ep
                         s, e = parts
                         if (s in season_data) and (e in season_data[s]):
                             xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
-                            output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger)
+                            if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
+                                output_generated = True
 
         # output .nfo
-        output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger)
+        if output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
+            output_generated = True
+
+        return output_generated
 
 
 def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
