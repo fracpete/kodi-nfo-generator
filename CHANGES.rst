@@ -7,6 +7,8 @@ Changelog
 - using `download-missing` no longer generates `Ignoring unhandled fanart type: download-missing`
   message when fanart already present (just an output bug).
 - improved checks for existing `.nfo` files to reduce IMDB requests
+- added `kodi-nfo-rename` tool for renaming files using regular expressions
+  (e.g., files of TV shows)
 
 
 0.0.8 (2023-01-04)

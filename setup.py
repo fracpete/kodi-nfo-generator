@@ -59,6 +59,7 @@ setup(
         "console_scripts": [
             "kodi-nfo-gen=kodi.generator:sys_main",
             "kodi-nfo-guess=kodi.guess:sys_main",
+            "kodi-nfo-rename=kodi.rename:sys_main",
             "kodi-nfo-export=kodi.exports:sys_main",
             "kodi-nfo-import=kodi.imports:sys_main",
         ]

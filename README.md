@@ -128,6 +128,37 @@ optional arguments:
 ```
 
 
+### kodi-nfo-rename
+
+Simple renaming tool, e.g., to be used for renaming episodes of TV shows
+to a format that kodi recognizes.
+
+The following parameters can be supplied to the tool:
+
+```
+usage: kodi-nfo-rename [-h] --dir DIR --find REGEXP --replace PATTERN
+                       [--recursive] [--dry_run] [--verbose] [--debug]
+
+Simple renaming tool using regular expressions.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --dir DIR          the directory to traverse (default: None)
+  --find REGEXP      the regular expression that files must match in order to
+                     be renamed (excluding path; must specify groups to
+                     identify season, episode and extension) (default:
+                     ([0-9]?[0-9])x([0-9][0-9]).(.*))
+  --replace PATTERN  the pattern for assembling the new file name (default:
+                     S\1E\2.\3)
+  --recursive        whether to traverse the directory recursively (default:
+                     False)
+  --dry_run          whether to perform a 'dry-run', ie only outputting the
+                     .nfo content to stdout but not saving it to files
+                     (default: False)
+  --verbose          whether to output logging information (default: False)
+  --debug            whether to output debugging information (default: False)
+```
+
 ### kodi-nfo-export
 
 Using the `kodi-nfo-export` tool, you can export your ID files in a CSV file, 
