@@ -126,7 +126,10 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
 
         # fanart
         fanart_path = os.path.join(os.path.dirname(xml_path), fanart_file)
-        if (fanart == "download") or ((fanart == "download-missing") and not os.path.exists(fanart_path)):
+        fanart_act = fanart
+        if (fanart_act == "download-missing") and not os.path.exists(fanart_path):
+            fanart_act = "download"
+        if fanart_act == "download":
             if "image" in j:
                 logger.info("Downloading fanart: %s" % j["image"])
                 if (ua is not None) and (ua != ""):
@@ -143,13 +146,13 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", xm
                     logger.critical("Failed to download fanart, status code: " % r.status_code)
             else:
                 logger.warning("No image associated, cannot download!")
-        elif fanart == "use-existing":
+        elif fanart_act == "use-existing":
             xthumb = add_node(doc, root, "thumb", fanart_file)
             xthumb.setAttribute("aspect", "poster")
-        elif fanart == "none":
+        elif fanart_act == "none":
             pass
         else:
-            logger.critical("Ignoring unhandled fanart type: %s" % fanart)
+            logger.critical("Ignoring unhandled fanart type: %s" % fanart_act)
 
         if has_episodes(soup):
             logger.info("Has episode data")
