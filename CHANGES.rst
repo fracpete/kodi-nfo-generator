@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.10 (2023-04-16)
+-------------------
+
+- using `@type` in JSON data to check whether episode data available (i.e., when `TVSeries`)
+
+
 0.0.9 (2023-01-06)
 ------------------
 
