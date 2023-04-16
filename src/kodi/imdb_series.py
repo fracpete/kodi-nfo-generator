@@ -29,17 +29,16 @@ AIRDATE_FORMAT = "%d %b. %Y"
 logger = logging.getLogger("kodi.imdb")
 
 
-def has_episodes(soup):
+def has_episodes(j):
     """
     Checks whether episodes are available for this parsed IMDB page.
 
-    :param soup: the parsed document
-    :type soup: BeautifulSoup
+    :param j: the json data
+    :type j: dict
     :return: whether episodes are available
     :rtype: bool
     """
-    episodes = soup.find("a", href="episodes/?ref_=tt_ov_epl")
-    return episodes is not None
+    return ("@type" in j) and (j["@type"] == "TVSeries")
 
 
 def create_episodes_url(id, season=None):
