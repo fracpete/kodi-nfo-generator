@@ -68,9 +68,26 @@ def extract_seasons(soup):
     :rtype: list
     """
     result = []
-    byseason = soup.find("select", id="bySeason")
-    for option in byseason.find_all("option"):
-        result.append(option["value"])
+
+    # dropdown for seasons
+    seasons = soup.find("select", id="bySeason")
+    if seasons is not None:
+        logger.info("Season using dropdown")
+        for option in seasons.find_all("option"):
+            result.append(option["value"])
+        return result
+
+    # buttons for seasons
+    seasons = soup.find_all("li", attrs={"data-testid": "tab-season-entry"})
+    if seasons is not None:
+        logger.info("Season using buttons")
+        for li in seasons:
+            print(type(li))
+            print(dir(li))
+            result.append(li.text)
+        return result
+
+    logger.warning("Failed to get seasons from HTML!")
     return result
 
 
