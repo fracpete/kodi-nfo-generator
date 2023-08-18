@@ -82,8 +82,6 @@ def extract_seasons(soup):
     if seasons is not None:
         logger.info("Season using buttons")
         for li in seasons:
-            print(type(li))
-            print(dir(li))
             result.append(li.text)
         return result
 
