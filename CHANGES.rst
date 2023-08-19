@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.0.11 (????-??-??)
+-------------------
+
+- seasons can be extracted now from button-based navigation, as well as the older style
+  "select"-based one.
+- episode data can be extract from episode-item-wrapper tags as well now
+
+
 0.0.10 (2023-04-16)
 -------------------
 
