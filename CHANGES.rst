@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.11 (????-??-??)
+0.0.11 (2023-08-19)
 -------------------
 
 - seasons can be extracted now from button-based navigation, as well as the older style
