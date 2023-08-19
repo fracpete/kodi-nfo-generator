@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.12 (????-??-??)
+0.0.12 (2023-08-20)
 -------------------
 
 - unescaping HTML entities in the JSON data when loading it
