@@ -103,76 +103,157 @@ def extract_episodes(soup, season):
     :rtype: dict
     """
     result = {}
-    for ep_data_tag in soup.find_all("div", itemprop="episodes"):
-        if ep_data_tag is None:
-            continue
 
-        # episode
-        ep_tag = ep_data_tag.find("meta", itemprop="episodeNumber")
-        if ep_tag is None:
-            continue
-        episode = ep_tag["content"].strip()
+    # episodes div-based
+    tags = soup.find_all("div", itemprop="episodes")
+    if (tags is not None) and (len(tags) > 0):
+        logger.info("extract_episodes: episodes-div based")
+        for ep_data_tag in tags:
+            if ep_data_tag is None:
+                continue
 
-        # title
-        title_tag = ep_data_tag.find("a", itemprop="name")
-        if title_tag is None:
-            continue
-        title = title_tag.string.strip()
+            # episode
+            ep_tag = ep_data_tag.find("meta", itemprop="episodeNumber")
+            if ep_tag is None:
+                continue
+            episode = ep_tag["content"].strip()
 
-        # episode link
-        uniqueid = title_tag["href"].replace("/title/", "")
-        uniqueid = uniqueid[0:uniqueid.index("/")]
+            # title
+            title_tag = ep_data_tag.find("a", itemprop="name")
+            if title_tag is None:
+                continue
+            title = title_tag.string.strip()
 
-        # plot
-        plot_tag = ep_data_tag.find("div", attrs={"itemprop": "description", "class": "item_description"})
-        if (plot_tag is None) or (plot_tag.string is None):
-            plot = None
-        else:
-            plot = plot_tag.string.strip()
+            # episode link
+            uniqueid = title_tag["href"].replace("/title/", "")
+            uniqueid = uniqueid[0:uniqueid.index("/")]
 
-        # air date
-        airdate_tag = ep_data_tag.find("div", attrs={"class", "airdate"})
-        if airdate_tag is None:
-            airdate = None
-        else:
-            try:
-                airdate = datetime.strptime(airdate_tag.string.strip(), AIRDATE_FORMAT)
-            except:
+            # plot
+            plot_tag = ep_data_tag.find("div", attrs={"itemprop": "description", "class": "item_description"})
+            if (plot_tag is None) or (plot_tag.string is None):
+                plot = None
+            else:
+                plot = plot_tag.string.strip()
+
+            # air date
+            airdate_tag = ep_data_tag.find("div", attrs={"class", "airdate"})
+            if airdate_tag is None:
                 airdate = None
+            else:
+                try:
+                    airdate = datetime.strptime(airdate_tag.string.strip(), AIRDATE_FORMAT)
+                except:
+                    airdate = None
 
-        # rating
-        rating_tag = ep_data_tag.find("span", attrs={"class": "ipl-rating-star__rating"})
-        if rating_tag is None:
-            rating = None
-        else:
-            try:
-                rating = float(rating_tag.string.strip())
-            except:
+            # rating
+            rating_tag = ep_data_tag.find("span", attrs={"class": "ipl-rating-star__rating"})
+            if rating_tag is None:
                 rating = None
+            else:
+                try:
+                    rating = float(rating_tag.string.strip())
+                except:
+                    rating = None
 
-        # votes
-        votes_tag = ep_data_tag.find("span", attrs={"class": "ipl-rating-star__total-votes"})
-        if votes_tag is None:
-            votes = None
-        else:
-            try:
-                votes = int(votes_tag.string.strip().replace("(", "").replace(")", "").replace(",", ""))
-            except:
+            # votes
+            votes_tag = ep_data_tag.find("span", attrs={"class": "ipl-rating-star__total-votes"})
+            if votes_tag is None:
                 votes = None
+            else:
+                try:
+                    votes = int(votes_tag.string.strip().replace("(", "").replace(")", "").replace(",", ""))
+                except:
+                    votes = None
 
-        # assemble episode data
-        result[episode] = {
-            "_uniqueid": uniqueid,
-            "season": season,
-            "episode": episode,
-            "title": title,
-            "plot": plot,
-            "aired": airdate,
-            "_rating": {
-                "value": rating,
-                "votes": votes,
+            # assemble episode data
+            result[episode] = {
+                "_uniqueid": uniqueid,
+                "season": season,
+                "episode": episode,
+                "title": title,
+                "plot": plot,
+                "aired": airdate,
+                "_rating": {
+                    "value": rating,
+                    "votes": votes,
+                }
             }
-        }
+        return result
+
+    # episode-item-wrapper-based
+    tags = soup.find_all("article", attrs={"class": "episode-item-wrapper"})
+    if tags is not None:
+        logger.info("extract_episodes: episode-item-wrapper based")
+        pattern_ep = re.compile(".*ttep_ep([0-9]+)")
+        for article in tags:
+            # title
+            title_tag = article.find("a", attrs={"class": "ipc-lockup-overlay"})
+            if title_tag is None:
+                continue
+            title = title_tag["aria-label"]
+
+            # episode
+            href = title_tag["href"]
+            if "ttep_ep" in href:
+                match_ep = pattern_ep.match(href)
+                if match_ep is None:
+                    continue
+                result_ep = match_ep.groups()
+                episode = result_ep[0]
+            else:
+                continue
+            # episode = None
+
+            # episode link
+            uniqueid = title_tag["href"].replace("/title/", "")
+            uniqueid = uniqueid[0:uniqueid.index("/")]
+
+            # plot
+            plot_tag = article.find("div", attrs={"class": "ipc-html-content-inner-div"})
+            if plot_tag is None:
+                plot = ""
+            else:
+                plot = plot_tag.text
+
+            # air date
+            airdate = None
+            span_tags = article.find_all("span")
+            if span_tags is not None:
+                for span_tag in span_tags:
+                    try:
+                        airdate = datetime.strptime(span_tag.text.strip(), "%B %d, %Y")
+                        break
+                    except:
+                        pass
+
+            # rating
+            rating = None
+            rating_tag = article.find("span", attrs={"class": "ipc-rating-star"})
+            if rating_tag is not None:
+                s = rating_tag["aria-label"]
+                s = s[s.index(":") + 1:]
+                rating = float(s)
+
+            # votes
+            # not available anymore?
+
+            # assemble episode data
+            result[episode] = {
+                "_uniqueid": uniqueid,
+                "season": season,
+                "episode": episode,
+                "title": title,
+                "plot": plot,
+                "aired": airdate,
+                "_rating": {
+                    "value": rating,
+                }
+            }
+        return result
+
+    if len(result) == 0:
+        logger.warning("No episode data extracted!")
+
     return result
 
 
@@ -205,7 +286,8 @@ def episode_to_xml(episode_data):
         rating.setAttribute("max", "10")
         rating.setAttribute("default", "true")
         add_node(doc, rating, "value", str(episode_data["_rating"]["value"]))
-        add_node(doc, rating, "votes", str(episode_data["_rating"]["votes"]))
+        if "votes" in episode_data["_rating"]:
+            add_node(doc, rating, "votes", str(episode_data["_rating"]["votes"]))
 
     return doc
 
