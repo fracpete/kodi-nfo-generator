@@ -16,12 +16,11 @@
 
 from bs4 import BeautifulSoup
 import fnmatch
-import json
 import logging
 import os
 import requests
 from xml.dom import minidom
-from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file
+from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
     extract_season_episode
@@ -104,7 +103,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
 
     output_generated = False
     for script in soup.findAll("script", type="application/ld+json"):
-        j = json.loads(script.text)
+        j = json_loads(script.text)
         logger.debug(j)
 
         root = add_node(doc, doc, TAG_MOVIE)
@@ -268,7 +267,7 @@ def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
     soup = BeautifulSoup(r.content, "html.parser")
 
     for script in soup.findAll("script", id="__NEXT_DATA__", type="application/json"):
-        j = json.loads(script.text)
+        j = json_loads(script.text)
         logger.debug(j)
         if ("props" not in j) or ("pageProps" not in j["props"]) or ("titleResults" not in j["props"]["pageProps"]):
             continue

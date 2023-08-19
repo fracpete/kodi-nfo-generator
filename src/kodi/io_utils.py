@@ -15,6 +15,8 @@
 # Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
 
 import fnmatch
+import html
+import json
 import os
 from xml.dom import minidom
 
@@ -178,4 +180,32 @@ def get_nfo_file(path):
         if os.path.exists(f):
             result = f
 
+    return result
+
+
+def unescape_html(d):
+    """
+    Unescapes all HTML entities in the dictionary strings.
+
+    :param d: the dictionary to process
+    :type d: dict
+    """
+    for k in d:
+        if isinstance(d[k], str):
+            d[k] = html.unescape(d[k])
+        if isinstance(d[k], dict):
+            unescape_html(d[k])
+
+
+def json_loads(s):
+    """
+    Loads the json from the string and cleans it up.
+
+    :param s: the json string to parse
+    :type s: str
+    :return: the generated dictionary
+    :rtype: dict
+    """
+    result = json.loads(s)
+    unescape_html(result)
     return result
