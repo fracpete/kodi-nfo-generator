@@ -14,12 +14,15 @@
 # imdb_series.py
 # Copyright (C) 2021-2023 Fracpete (fracpete at gmail dot com)
 
-import re
+import fnmatch
 import logging
+import os
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from xml.dom import minidom
 from kodi.xml_utils import add_node
+from kodi.io_utils import determine_dirs
 
 
 AIRDATE_FORMAT = "%d %b. %Y"
@@ -317,3 +320,35 @@ def extract_season_episode(path, season_group=".*S([0-9]?[0-9])E.*", episode_gro
         return [str(int(result_s[0])), str(int(result_e[0]))]
     else:
         return None
+
+
+def determine_episodes(path, episode_pattern="*S??E??*.*",
+                       season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*"):
+    """
+    Locates all episodes on disk and associates them with their season.
+
+    :param path: the directory to scan
+    :type path: str
+    :param episode_pattern: the pattern to use for locating episode files
+    :type episode_pattern: str
+    :param season_group: the regular expression to extract the season (first group)
+    :type season_group: str
+    :param episode_group: the regular expression to extract the episode (first group)
+    :type episode_group: str
+    :return: the dictionary of episodes (key is the season)
+    :rtype: dict
+    """
+    result = dict()
+    dirs = list()
+    determine_dirs(path, True, dirs)
+    for d in dirs:
+        files = fnmatch.filter(os.listdir(d), episode_pattern)
+        for f in files:
+            parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
+            if parts is None:
+                continue
+            s, e = parts
+            if s not in result:
+                result[s] = list()
+            result[s].append(e)
+    return result

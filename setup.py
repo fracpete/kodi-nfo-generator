@@ -48,7 +48,7 @@ setup(
     packages=[
         "kodi",
     ],
-    version="0.0.12",
+    version="0.0.13",
     author='Peter "fracpete" Reutemann',
     author_email='fracpete@gmail.com',
     install_requires=[

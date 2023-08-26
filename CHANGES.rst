@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.13 (2023-08-20)
+-------------------
+
+- now only downloading episode data for seasons that are also on disk rather than all
+  available ones
+
+
 0.0.12 (2023-08-20)
 -------------------
 

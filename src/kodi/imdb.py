@@ -23,7 +23,7 @@ from xml.dom import minidom
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
-    extract_season_episode
+    extract_season_episode, determine_episodes
 
 # logging setup
 logger = logging.getLogger("kodi.imdb")
@@ -190,11 +190,16 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                     continue
                 soup_ep = BeautifulSoup(r.content, "html.parser")
                 seasons = extract_seasons(soup_ep)
-                logger.info("Seasons: %s" % ", ".join(seasons))
+                logger.info("Available seasons: %s" % ", ".join(seasons))
 
-                # extract episodes
+                # determine seasons
+                seasons_episodes = determine_episodes(path, episode_pattern=episode_pattern,
+                                                      season_group=season_group, episode_group=episode_group)
+                logger.info("Located seasons: %s" % ", ".join(sorted(seasons_episodes.keys())))
+
+                # extract episodes for seasons on disk
                 season_data = {}
-                for season in seasons:
+                for season in seasons_episodes.keys():
                     season_data[season] = {}
                     url = create_episodes_url(id, season=season)
                     logger.info("Season %s URL: %s" % (season, url))
