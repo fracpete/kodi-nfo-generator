@@ -17,6 +17,13 @@ files for TV episodes are being generated. The video files need to have the patt
 can either be in the same directory of the .nfo file of the series or in sub-directories.  
 
 
+## Kodi integration
+
+See the following repository for integrating this tool with [Kodi](https://kodi.tv/):
+
+https://github.com/fracpete/kodi-nfo-generator-addon
+
+
 ## Installation
 
 You can install the tool with pip as follows:
