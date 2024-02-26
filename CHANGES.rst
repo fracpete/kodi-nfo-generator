@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.14 (????-??-??)
+-------------------
+
+- now checking whether `aria-label` attribute is present in rating tag for series
+  (https://github.com/fracpete/kodi-nfo-generator/issues/7)
+
+
 0.0.13 (2023-08-20)
 -------------------
 

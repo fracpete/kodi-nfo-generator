@@ -232,7 +232,7 @@ def extract_episodes(soup, season):
             # rating
             rating = None
             rating_tag = article.find("span", attrs={"class": "ipc-rating-star"})
-            if rating_tag is not None:
+            if (rating_tag is not None) and ("aria-label" in rating_tag):
                 s = rating_tag["aria-label"]
                 s = s[s.index(":") + 1:]
                 rating = float(s)
