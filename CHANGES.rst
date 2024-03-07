@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.14 (????-??-??)
+0.0.14 (2024-03-08)
 -------------------
 
 - now checking whether `aria-label` attribute is present in rating tag for series
