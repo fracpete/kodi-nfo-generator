@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # generator.py
-# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2024 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
@@ -30,7 +30,7 @@ logger = logging.getLogger("kodi.generator")
 def generate(path, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry_run=False, overwrite=False,
              language="en", fanart="none", fanart_file="folder.jpg", interactive=False, episodes=False,
              episode_pattern="*S??E??*.*", season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*",
-             ua="Mozilla"):
+             multi_episodes=False, ua="Mozilla"):
     """
     Traverses the directory and generates the .nfo files.
 
@@ -64,6 +64,8 @@ def generate(path, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
     :type episode_group: str
+    :param multi_episodes: whether to generate multi-episodes output
+    :type multi_episodes: bool
     :param ua: User agent for requests
     :type ua: str
     """
@@ -99,7 +101,7 @@ def generate(path, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry
                                                    path=d, overwrite=overwrite, dry_run=dry_run,
                                                    episodes=episodes, episode_pattern=episode_pattern,
                                                    season_group=season_group, episode_group=episode_group,
-                                                   ua=ua)
+                                                   multi_episodes=multi_episodes, ua=ua)
                 else:
                     logger.critical("Unhandled ID type: %s" % idtype)
                     return
@@ -137,6 +139,7 @@ def main(args=None):
     parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern to use for locating episode files")
     parser.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
     parser.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
+    parser.add_argument("--multi_episodes", action="store_true", dest="multi_episodes", required=False, help="whether to store the episodes info in a single file")
     parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
     parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
@@ -160,7 +163,7 @@ def main(args=None):
              fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive,
              episodes=parsed.episodes, episode_pattern=parsed.episode_pattern,
              season_group=parsed.season_group, episode_group=parsed.episode_group,
-             ua=parsed.user_agent)
+             multi_episodes=parsed.multi_episodes, ua=parsed.user_agent)
 
 
 def sys_main():

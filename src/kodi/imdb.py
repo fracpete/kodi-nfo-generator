@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # imdb.py
-# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2024 Fracpete (fracpete at gmail dot com)
 
 from bs4 import BeautifulSoup
 import fnmatch
@@ -20,7 +20,7 @@ import logging
 import os
 import requests
 from xml.dom import minidom
-from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads
+from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads, output_str
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
     extract_season_episode, determine_episodes, extract_episodes_json
@@ -32,7 +32,7 @@ logger = logging.getLogger("kodi.imdb")
 def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", path=None, overwrite=False, dry_run=False,
                   episodes=False, episode_pattern="*S??E??*.*",
                   season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*",
-                  ua="Mozilla"):
+                  multi_episodes=False, ua="Mozilla"):
     """
     Generates the XML for the specified IMDB ID.
 
@@ -58,6 +58,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
     :type episode_group: str
+    :param multi_episodes: whether to output multi-episode.nfo files instead of single-episode files
+    :type multi_episodes: bool
     :param ua: the user agent to use, ignore if empty string or None
     :type ua: str
     :return: whether a file was generated
@@ -74,6 +76,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
 
     # default movie .nfo
     xml_path = os.path.join(path, os.path.basename(path) + ".nfo")
+    xml_path_multi = os.path.join(path, "multi-episode.nfo")
 
     # generate URL
     if id.startswith("http"):
@@ -94,6 +97,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     soup = BeautifulSoup(r.content, "html.parser")
 
     doc = minidom.Document()
+    doc_multi = []
 
     widget = soup.find("div", id="star-rating-widget")
     if widget is None:
@@ -181,8 +185,6 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
             root.tagName = TAG_TVSHOW
 
             if episodes:
-                season_data = None
-
                 # determine seasons
                 url = create_episodes_url(id)
                 logger.info("Default episodes URL: %s" % url)
@@ -243,11 +245,21 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                             continue
                         s, e = parts
                         if (s in season_data) and (e in season_data[s]):
-                            xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
-                            if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
-                                output_generated = True
+                            if multi_episodes:
+                                xml_lines = season_data[s][e].toprettyxml(indent="  ").strip().split("\n")
+                                if (len(doc_multi) > 0) and ("<?xml" in xml_lines[0]):
+                                    xml_lines = xml_lines[1:]
+                                doc_multi.extend(xml_lines)
+                            else:
+                                xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
+                                if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
+                                    output_generated = True
 
         # output .nfo
+        if multi_episodes:
+            doc_multi = "\n".join(doc_multi)
+            if output_str(doc_multi, xml_path_multi, dry_run=dry_run, overwrite=overwrite, logger=logger):
+                output_generated = True
         if output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
             output_generated = True
 

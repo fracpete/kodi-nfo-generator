@@ -49,9 +49,9 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--fanart_file FILE] [--episodes]
                     [--episode_pattern EPISODE_PATTERN]
                     [--season_group SEASON_GROUP]
-                    [--episode_group EPISODE_GROUP] [--dry_run] [--overwrite]
-                    [--verbose] [--debug] [--interactive]
-                    [--user-agent USER_AGENT]
+                    [--episode_group EPISODE_GROUP] [--multi_episodes]
+                    [--dry_run] [--overwrite] [--verbose] [--debug]
+                    [--interactive] [--user-agent USER_AGENT]
 
 Generates Kodi .nfo files with information retrieved from IMDB using local
 files containing the unique IMDB movie ID.
@@ -86,6 +86,8 @@ optional arguments:
   --episode_group EPISODE_GROUP
                         the regular expression to extract the episode (first
                         group) (default: .*E([0-9]?[0-9]).*)
+  --multi_episodes      whether to store the episodes info in a single file
+                        (default: False)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
                         (default: False)

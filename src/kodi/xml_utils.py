@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # xml_utils.py
-# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2024 Fracpete (fracpete at gmail dot com)
 
 import os
 
@@ -63,11 +63,11 @@ def output_xml(doc, xml_path, dry_run=False, overwrite=False, logger=None):
         return False
     else:
         if os.path.exists(xml_path) and not overwrite:
-            logger.info(".nfo file already exists, skipping: %s" % xml_path)
+            logger.info("File already exists, skipping: %s" % xml_path)
             return False
         else:
             if logger is not None:
-                logger.info("Writing .nfo file: %s" % xml_path)
+                logger.info("Writing file: %s" % xml_path)
             with open(xml_path, "w") as xml_file:
                 xml_file.write(xml_str)
             return True

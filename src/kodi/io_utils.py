@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # io_utils.py
-# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2024 Fracpete (fracpete at gmail dot com)
 
 import fnmatch
 import html
@@ -209,3 +209,33 @@ def json_loads(s):
     result = json.loads(s)
     unescape_html(result)
     return result
+
+
+def output_str(content, path, dry_run=False, overwrite=False, logger=None):
+    """
+    Outputs the string content. Can throw an exception if writing fails.
+
+    :param content: the string content to output
+    :param path: the file to (potentially) write to
+    :type path: str
+    :param dry_run: whether this is just a test run
+    :type dry_run: bool
+    :param overwrite: whether to overwrite existing files
+    :type overwrite: bool
+    :param logger: the logger instance to use for outputting logging information
+    :return: whether a file was generated
+    :rtype: bool
+    """
+    if dry_run:
+        print(content)
+        return False
+    else:
+        if os.path.exists(path) and not overwrite:
+            logger.info("File already exists, skipping: %s" % path)
+            return False
+        else:
+            if logger is not None:
+                logger.info("Writing file: %s" % path)
+            with open(path, "w") as fp:
+                fp.write(content)
+            return True

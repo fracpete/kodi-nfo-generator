@@ -6,6 +6,8 @@ Changelog
 
 - added experimental extraction of episode information from JSON (if available), which
   take precedence over information from HTML tags
+- added experimental `--multi_episodes` flag, which outputs a `multi-episode.nfo` file
+  with all the episode details rather than one .nfo per episode
 
 
 0.0.14 (2024-03-08)
