@@ -269,7 +269,7 @@ def _find_episodes_json(j, key):
     :param key: the seasons key to look for
     :type key: str
     :return: the seasons data or None if not found
-    :rtype: list
+    :rtype: dict
     """
     for k in j.keys():
         if k == key:
@@ -303,13 +303,16 @@ def extract_episodes_json(j):
                 "season": season,
                 "episode": episode,
                 "title": item["titleText"],
-                "plot": item["plot"],
-                "aired": datetime(item["releaseDate"]["year"], month=item["releaseDate"]["month"], day=item["releaseDate"]["day"]),
-                "_rating": {
+            }
+            if "plot" in item:
+                result[episode]["plot"] = "plot"
+            if "aired" in item:
+                result[episode]["aired"] = datetime(item["releaseDate"]["year"], month=item["releaseDate"]["month"], day=item["releaseDate"]["day"])
+            if ("aggregateRating" in item) and ("voteCount" in item):
+                result[episode]["_rating"] = {
                     "value": item["aggregateRating"],
                     "votes": item["voteCount"],
                 }
-            }
     return result
 
 
