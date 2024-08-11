@@ -202,11 +202,15 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                 # determine seasons
                 seasons_episodes = determine_episodes(path, episode_pattern=episode_pattern,
                                                       season_group=season_group, episode_group=episode_group)
-                logger.info("Located seasons: %s" % ", ".join(sorted(seasons_episodes.keys())))
+                try:
+                    seasons_sorted = sorted(seasons_episodes.keys(), key=int)
+                except:
+                    seasons_sorted = sorted(seasons_episodes.keys())
+                logger.info("Located seasons: %s" % ", ".join(seasons_sorted))
 
                 # extract episodes for seasons on disk
                 season_data = {}
-                for season in seasons_episodes.keys():
+                for season in seasons_sorted:
                     season_data[season] = {}
                     url = create_episodes_url(id, season=season)
                     logger.info("Season %s URL: %s" % (season, url))
