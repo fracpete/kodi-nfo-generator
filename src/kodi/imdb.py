@@ -22,8 +22,8 @@ import requests
 from xml.dom import minidom
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads
 from kodi.xml_utils import add_node, output_xml
-from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes, episode_to_xml, \
-    extract_season_episode, determine_episodes
+from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
+    extract_season_episode, determine_episodes, extract_episodes_json
 
 # logging setup
 logger = logging.getLogger("kodi.imdb")
@@ -181,6 +181,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
             root.tagName = TAG_TVSHOW
 
             if episodes:
+                season_data = None
+
                 # determine seasons
                 url = create_episodes_url(id)
                 logger.info("Default episodes URL: %s" % url)
@@ -208,10 +210,25 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                         logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
                         continue
                     soup_ep = BeautifulSoup(r.content, "html.parser")
-                    episodes_data = extract_episodes(soup_ep, season)
-                    for k in episodes_data:
-                        xml = episode_to_xml(episodes_data[k])
-                        season_data[season][k] = xml
+
+                    # 1. episode data in json available?
+                    use_fallback = False
+                    for ep_script in soup_ep.findAll("script", type="application/json"):
+                        ep_j = json_loads(ep_script.text)
+                        episodes_data = extract_episodes_json(ep_j)
+                        if len(episodes_data) == 0:
+                            use_fallback = True
+                        else:
+                            for k in episodes_data:
+                                xml = episode_to_xml(episodes_data[k])
+                                season_data[season][k] = xml
+
+                    # 2. HTML fallback
+                    if use_fallback:
+                        episodes_data = extract_episodes_html(soup_ep, season)
+                        for k in episodes_data:
+                            xml = episode_to_xml(episodes_data[k])
+                            season_data[season][k] = xml
 
                 # locate files and output XML
                 dirs = []

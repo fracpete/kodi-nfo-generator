@@ -92,7 +92,7 @@ def extract_seasons(soup):
     return result
 
 
-def extract_episodes(soup, season):
+def extract_episodes_html(soup, season):
     """
     Extracts the data for each episode as dictionary.
     The unique ID is stored under "_uniqueid", the rating data under "_rating",
@@ -257,6 +257,59 @@ def extract_episodes(soup, season):
     if len(result) == 0:
         logger.warning("No episode data extracted!")
 
+    return result
+
+
+def _find_episodes_json(j, key):
+    """
+    Locates the seasons data recursively in the JSON data.
+
+    :param j: the json data to process
+    :type j: dict
+    :param key: the seasons key to look for
+    :type key: str
+    :return: the seasons data or None if not found
+    :rtype: list
+    """
+    for k in j.keys():
+        if k == key:
+            return j[k]
+        if isinstance(j[k], dict):
+            res = _find_episodes_json(j[k], key)
+            if res is not None:
+                return res
+    return None
+
+
+def extract_episodes_json(j):
+    """
+    Extracts the data for each episode as dictionary.
+    The unique ID is stored under "_uniqueid", the rating data under "_rating",
+    all other keys are the relevant XML tags.
+
+    :param j: the json data to use
+    :type j: dict
+    :return: the dictionary with episodes (episode -> data dict)
+    :rtype: dict
+    """
+    result = {}
+    data = _find_episodes_json(j, "episodes")
+    if "items" in data:
+        for item in data["items"]:
+            season = item["season"]
+            episode = item["episode"]
+            result[episode] = {
+                "_uniqueid": item["id"],
+                "season": season,
+                "episode": episode,
+                "title": item["titleText"],
+                "plot": item["plot"],
+                "aired": datetime(item["releaseDate"]["year"], month=item["releaseDate"]["month"], day=item["releaseDate"]["day"]),
+                "_rating": {
+                    "value": item["aggregateRating"],
+                    "votes": item["voteCount"],
+                }
+            }
     return result
 
 
