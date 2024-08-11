@@ -1,11 +1,18 @@
 Changelog
 =========
 
-0.0.14 (????-??-??)
+0.0.15 (????-??-??)
 -------------------
 
 - added experimental extraction of episode information from JSON (if available), which
   take precedence over information from HTML tags
+
+
+0.0.14 (2024-03-08)
+-------------------
+
+- now checking whether `aria-label` attribute is present in rating tag for series
+  (https://github.com/fracpete/kodi-nfo-generator/issues/7)
 
 
 0.0.13 (2023-08-20)
