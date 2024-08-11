@@ -47,7 +47,7 @@ usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
                     [--preferred_language LANG]
                     [--fanart {none,download,download-missing,use-existing}]
                     [--fanart_file FILE] [--episodes]
-                    [--episode_pattern EPISODE_PATTERN]
+                    [--episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]]
                     [--season_group SEASON_GROUP]
                     [--episode_group EPISODE_GROUP] [--multi_episodes]
                     [--dry_run] [--overwrite] [--verbose] [--debug]
@@ -77,8 +77,8 @@ optional arguments:
                         filename (default: folder.jpg)
   --episodes            whether to generate .nfo files for episodes as well
                         (default: False)
-  --episode_pattern EPISODE_PATTERN
-                        the shell pattern to use for locating episode files
+  --episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]
+                        the shell pattern(s) to use for locating episode files
                         (default: *S??E??*.*)
   --season_group SEASON_GROUP
                         the regular expression to extract the season (first

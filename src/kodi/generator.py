@@ -58,8 +58,8 @@ def generate(path, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry
     :type interactive: bool
     :param episodes: whether to generate episode information as well
     :type episodes: bool
-    :param episode_pattern: the pattern to use for locating episode files
-    :type episode_pattern: str
+    :param episode_pattern: the pattern(s) to use for locating episode files
+    :type episode_pattern: str or list
     :param season_group: the regular expression to extract the season (first group)
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
@@ -69,13 +69,15 @@ def generate(path, idtype="imdb", recursive=True, pattern="*.imdb", delay=1, dry
     :param ua: User agent for requests
     :type ua: str
     """
-
     dirs = []
     determine_dirs(path, recursive, dirs)
     dirs.sort()
     logger.info("# dirs: %d" % len(dirs))
     if interactive:
         delay = 0
+
+    if isinstance(episode_pattern, str):
+        episode_pattern = [episode_pattern]
 
     for d in dirs:
         logger.info("Current dir: %s" % d)
@@ -136,7 +138,7 @@ def main(args=None):
     parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "download-missing", "use-existing"], default="none", required=False, help="how to deal with fan-art")
     parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
     parser.add_argument("--episodes", action="store_true", dest="episodes", required=False, help="whether to generate .nfo files for episodes as well")
-    parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern to use for locating episode files")
+    parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern(s) to use for locating episode files", nargs="*")
     parser.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
     parser.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
     parser.add_argument("--multi_episodes", action="store_true", dest="multi_episodes", required=False, help="whether to store the episodes info in a single file")

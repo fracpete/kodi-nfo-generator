@@ -382,8 +382,8 @@ def determine_episodes(path, episode_pattern="*S??E??*.*",
 
     :param path: the directory to scan
     :type path: str
-    :param episode_pattern: the pattern to use for locating episode files
-    :type episode_pattern: str
+    :param episode_pattern: the pattern(s) to use for locating episode files
+    :type episode_pattern: str or list
     :param season_group: the regular expression to extract the season (first group)
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
@@ -393,15 +393,19 @@ def determine_episodes(path, episode_pattern="*S??E??*.*",
     """
     result = dict()
     dirs = list()
+    if isinstance(episode_pattern, str):
+        episode_pattern = [episode_pattern]
     determine_dirs(path, True, dirs)
     for d in dirs:
-        files = fnmatch.filter(os.listdir(d), episode_pattern)
-        for f in files:
-            parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
-            if parts is None:
-                continue
-            s, e = parts
-            if s not in result:
-                result[s] = list()
-            result[s].append(e)
+        for epattern in episode_pattern:
+            files = fnmatch.filter(os.listdir(d), epattern)
+            for f in files:
+                parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
+                if parts is None:
+                    continue
+                s, e = parts
+                if s not in result:
+                    result[s] = list()
+                if e not in result[s]:
+                    result[s].append(e)
     return result

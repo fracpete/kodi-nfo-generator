@@ -8,6 +8,7 @@ Changelog
   take precedence over information from HTML tags
 - added experimental `--multi_episodes` flag, which outputs a `multi-episode.nfo` file
   with all the episode details rather than one .nfo per episode
+- the `--episode_pattern` option now allows specifying multiple patterns (e.g., `?x??*` and `??x??*`)
 
 
 0.0.14 (2024-03-08)

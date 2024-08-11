@@ -52,8 +52,8 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     :type dry_run: bool
     :param episodes: whether to generate episode information as well
     :type episodes: bool
-    :param episode_pattern: the pattern to use for locating episode files
-    :type episode_pattern: str
+    :param episode_pattern: the pattern(s) to use for locating episode files
+    :type episode_pattern: str or list
     :param season_group: the regular expression to extract the season (first group)
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
@@ -66,6 +66,9 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     :rtype: bool
     """
     id = id.strip()
+
+    if isinstance(episode_pattern, str):
+        episode_pattern = [episode_pattern]
 
     # can we skip?
     if not overwrite:
@@ -236,24 +239,25 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                 dirs = []
                 determine_dirs(path, True, dirs)
                 for d in dirs:
-                    files = fnmatch.filter(os.listdir(d), episode_pattern)
-                    for f in files:
-                        if f.endswith(".nfo"):
-                            continue
-                        parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
-                        if parts is None:
-                            continue
-                        s, e = parts
-                        if (s in season_data) and (e in season_data[s]):
-                            if multi_episodes:
-                                xml_lines = season_data[s][e].toprettyxml(indent="  ").strip().split("\n")
-                                if (len(doc_multi) > 0) and ("<?xml" in xml_lines[0]):
-                                    xml_lines = xml_lines[1:]
-                                doc_multi.extend(xml_lines)
-                            else:
-                                xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
-                                if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
-                                    output_generated = True
+                    for epattern in episode_pattern:
+                        files = fnmatch.filter(os.listdir(d), epattern)
+                        for f in files:
+                            if f.endswith(".nfo"):
+                                continue
+                            parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
+                            if parts is None:
+                                continue
+                            s, e = parts
+                            if (s in season_data) and (e in season_data[s]):
+                                if multi_episodes:
+                                    xml_lines = season_data[s][e].toprettyxml(indent="  ").strip().split("\n")
+                                    if (len(doc_multi) > 0) and ("<?xml" in xml_lines[0]):
+                                        xml_lines = xml_lines[1:]
+                                    doc_multi.extend(xml_lines)
+                                else:
+                                    xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
+                                    if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
+                                        output_generated = True
 
         # output .nfo
         if multi_episodes:
