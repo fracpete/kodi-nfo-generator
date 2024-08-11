@@ -1,13 +1,6 @@
 Changelog
 =========
 
-0.0.14 (????-??-??)
--------------------
-
-- added experimental extraction of episode information from JSON (if available from HTML),
-  which takes precedence over extraction from HTML tags
-
-
 0.0.13 (2023-08-20)
 -------------------
 
