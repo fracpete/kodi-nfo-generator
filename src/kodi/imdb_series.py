@@ -305,7 +305,7 @@ def extract_episodes_json(j):
                 "title": item["titleText"],
             }
             if "plot" in item:
-                result[episode]["plot"] = "plot"
+                result[episode]["plot"] = item["plot"]
             if "aired" in item:
                 result[episode]["aired"] = datetime(item["releaseDate"]["year"], month=item["releaseDate"]["month"], day=item["releaseDate"]["day"])
             if ("aggregateRating" in item) and ("voteCount" in item):
