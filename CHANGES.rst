@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.15 (????-??-??)
+0.0.15 (2024-09-29)
 -------------------
 
 - added experimental extraction of episode information from JSON (if available), which
