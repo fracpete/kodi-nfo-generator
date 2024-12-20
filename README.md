@@ -29,7 +29,7 @@ https://github.com/fracpete/kodi-nfo-generator-addon
 You can install the tool with pip as follows:
 
 ```
-pip install kodi-nfo-generator
+pip install kodi_nfo_generator
 ```
 
 ## Tools
