@@ -181,6 +181,7 @@ def extract_episodes_html(soup, season):
                     "votes": votes,
                 }
             }
+        logger.info("episodes: %s" % ", ".join(sorted(result.keys(), key=int)))
         return result
 
     # episode-item-wrapper-based
@@ -188,6 +189,7 @@ def extract_episodes_html(soup, season):
     if tags is not None:
         logger.info("extract_episodes: episode-item-wrapper based")
         pattern_ep = re.compile(".*ttep_ep([0-9]+)")
+        pattern_ep2 = re.compile(".*ttep_ep_([0-9]+)")
         for article in tags:
             # title
             title_tag = article.find("a", attrs={"class": "ipc-lockup-overlay"})
@@ -197,7 +199,13 @@ def extract_episodes_html(soup, season):
 
             # episode
             href = title_tag["href"]
-            if "ttep_ep" in href:
+            if "ttep_ep_" in href:
+                match_ep = pattern_ep2.match(href)
+                if match_ep is None:
+                    continue
+                result_ep = match_ep.groups()
+                episode = result_ep[0]
+            elif "ttep_ep" in href:
                 match_ep = pattern_ep.match(href)
                 if match_ep is None:
                     continue
@@ -252,6 +260,7 @@ def extract_episodes_html(soup, season):
                     "value": rating,
                 }
             }
+        logger.info("episodes: %s" % ", ".join(sorted(result.keys(), key=int)))
         return result
 
     if len(result) == 0:
