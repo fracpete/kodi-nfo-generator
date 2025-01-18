@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.16 (????-??-??)
+0.0.16 (2025-01-18)
 -------------------
 
 - switched to underscores in project name
