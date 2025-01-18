@@ -5,6 +5,8 @@ Changelog
 -------------------
 
 - switched to underscores in project name
+- series episode extraction (episode-item-wrapper based) now handles `ttep_ep_([0-9]+)` as well
+  as `ttep_ep([0-9]+)`
 
 
 0.0.15 (2024-09-29)
