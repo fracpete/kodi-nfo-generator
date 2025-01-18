@@ -118,12 +118,14 @@ def extract_episodes_html(soup, season):
             # episode
             ep_tag = ep_data_tag.find("meta", itemprop="episodeNumber")
             if ep_tag is None:
+                logger.debug("No episode number tag found")
                 continue
             episode = ep_tag["content"].strip()
 
             # title
             title_tag = ep_data_tag.find("a", itemprop="name")
             if title_tag is None:
+                logger.debug("No title tag found")
                 continue
             title = title_tag.string.strip()
 
@@ -188,8 +190,10 @@ def extract_episodes_html(soup, season):
     tags = soup.find_all("article", attrs={"class": "episode-item-wrapper"})
     if tags is not None:
         logger.info("extract_episodes: episode-item-wrapper based")
-        pattern_ep = re.compile(".*ttep_ep([0-9]+)")
-        pattern_ep2 = re.compile(".*ttep_ep_([0-9]+)")
+        regexp_ep = ".*ttep_ep([0-9]+)"
+        pattern_ep = re.compile(regexp_ep)
+        regexp_ep2 = ".*ttep_ep_([0-9]+)"
+        pattern_ep2 = re.compile(regexp_ep2)
         for article in tags:
             # title
             title_tag = article.find("a", attrs={"class": "ipc-lockup-overlay"})
@@ -200,17 +204,23 @@ def extract_episodes_html(soup, season):
             # episode
             href = title_tag["href"]
             if "ttep_ep_" in href:
+                logger.debug("Applying pattern: %s" % regexp_ep2)
                 match_ep = pattern_ep2.match(href)
                 if match_ep is None:
+                    logger.debug("No match")
                     continue
                 result_ep = match_ep.groups()
                 episode = result_ep[0]
+                logger.debug("Episode: %s" % episode)
             elif "ttep_ep" in href:
+                logger.debug("Applying pattern: %s" % regexp_ep)
                 match_ep = pattern_ep.match(href)
                 if match_ep is None:
+                    logger.debug("No match")
                     continue
                 result_ep = match_ep.groups()
                 episode = result_ep[0]
+                logger.debug("Episode: %s" % episode)
             else:
                 continue
             # episode = None
