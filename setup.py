@@ -29,7 +29,7 @@ def _read(f):
 
 
 setup(
-    name="kodi-nfo-generator",
+    name="kodi_nfo_generator",
     description=" Simple Python-based command-line tool to generate .nfo files for movies and TV shows for Kodi. ",
     long_description=(
         _read('DESCRIPTION.rst') + b'\n' +
