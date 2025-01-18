@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # setup.py
-# Copyright (C) 2020-2023 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2025 Fracpete (fracpete at gmail dot com)
 
 from setuptools import setup
 
