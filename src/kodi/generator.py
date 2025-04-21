@@ -152,7 +152,7 @@ def main(args=None):
     # interactive mode turns on verbose mode
     if parsed.interactive and not (parsed.verbose or parsed.debug):
         parsed.verbose = True
-    # configure loggin
+    # configure login
     if parsed.debug:
         logging.basicConfig(level=logging.DEBUG)
     elif parsed.verbose:
@@ -165,7 +165,7 @@ def main(args=None):
              fanart=parsed.fanart, fanart_file=parsed.fanart_file, interactive=parsed.interactive,
              episodes=parsed.episodes, episode_pattern=parsed.episode_pattern,
              season_group=parsed.season_group, episode_group=parsed.episode_group,
-             multi_episodes=parsed.multi_episodes, ua=parsed.user_agent)
+             multi_episodes=parsed.multi_episodes, ua=parsed.user_agent, delay=parsed.delay)
 
 
 def sys_main():
