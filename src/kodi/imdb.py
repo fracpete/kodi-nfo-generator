@@ -124,8 +124,9 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
             add_node(doc, root, "outline", j["description"])
         if "datePublished" in j:
             add_node(doc, root, "premiered", j["datePublished"])
-        if "director" in j and "name" in j["director"]:
-            add_node(doc, root, "director", j["director"]["name"])
+        for director in j.get("director", ()):
+            if "name" in director:
+                add_node(doc, root, "director", director["name"])
         if "genre" in j:
             if isinstance(j["genre"], list):
                 for genre in j["genre"]:
