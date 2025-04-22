@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.17 (2025-04-22)
+-------------------
+
+- minor bugfixes and support for MPAA ratings (thanks to Daniel Quinn, PR https://github.com/fracpete/kodi-nfo-generator/pull/9)
+
+
 0.0.16 (2025-01-18)
 -------------------
 
