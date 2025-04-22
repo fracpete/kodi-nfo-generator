@@ -122,22 +122,24 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
         if "description" in j:
             add_node(doc, root, "plot", j["description"])
             add_node(doc, root, "outline", j["description"])
+        if "contentRating" in j:
+            add_node(doc, root, "mpaa", j["contentRating"])
         if "datePublished" in j:
             add_node(doc, root, "premiered", j["datePublished"])
-        if "director" in j and "name" in j["director"]:
-            add_node(doc, root, "director", j["director"]["name"])
+        for director in j.get("director", ()):
+            if "name" in director:
+                add_node(doc, root, "director", director["name"])
         if "genre" in j:
             if isinstance(j["genre"], list):
                 for genre in j["genre"]:
                     add_node(doc, root, "genre", genre)
             else:
                 add_node(doc, root, "genre", j["genre"])
-        if "actor" in j:
-            for actor in j["actor"]:
-                xactor = add_node(doc, root, "actor")
-                add_node(doc, xactor, "name", actor["name"])
+        for actor in j.get("actor", ()):
+            xactor = add_node(doc, root, "actor")
+            add_node(doc, xactor, "name", actor["name"])
         if "trailer" in j and "embedUrl" in j["trailer"]:
-            add_node(doc, root, "trailer", "https://www.imdb.com" + j["trailer"]["embedUrl"])
+            add_node(doc, root, "trailer", j["trailer"]["embedUrl"])
         if "aggregateRating" in j and "ratingValue" in j["aggregateRating"]:
             xratings = add_node(doc, root, "ratings")
             xrating = add_node(doc, xratings, "rating")
