@@ -112,17 +112,21 @@ def guess_file_name(path):
     return result
 
 
-def prompt(msg="Proceed (%s)? ", choices=["y", "n"]):
+def prompt(msg="Proceed (%s)? ", choices=None, ignore_case=True):
     """
     Prompts user in the console with a message with specific choices to select from.
 
     :param msg: the message to display, use %s for inserting the allowed choices (format: a/b/c/...)
     :type msg: str
-    :param choices: the list of allowed choices (must be strings)
+    :param choices: the list of allowed choices (must be strings), uses y/n if None
     :type choices: list
+    :param ignore_case: whether to ignore the case of the entered choices
+    :type ignore_case: bool
     :return: the selected choice
     :rtype: str
     """
+    if choices is None:
+        choices = ["y", "n"]
 
     act_msg = msg
     if "%s" in act_msg:
@@ -132,6 +136,10 @@ def prompt(msg="Proceed (%s)? ", choices=["y", "n"]):
         if retval in choices:
             result = retval
             break
+        if ignore_case:
+            if retval.upper() in choices:
+                result = retval.upper()
+                break
 
     return result
 
