@@ -12,15 +12,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # imdb.py
-# Copyright (C) 2020-2024 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2025 Fracpete (fracpete at gmail dot com)
 
+import argparse
 from bs4 import BeautifulSoup
 import fnmatch
 import logging
 import os
 import requests
+import time
+import traceback
 from xml.dom import minidom
-from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, json_loads, output_str
+from kodi.env import setup_env, interactive
+from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
+    json_loads, output_str, skip, proceed
 from kodi.xml_utils import add_node, output_xml
 from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
     extract_season_episode, determine_episodes, extract_episodes_json
@@ -29,15 +34,70 @@ from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons,
 logger = logging.getLogger("kodi.imdb")
 
 
-def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", path=None, overwrite=False, dry_run=False,
+def iterate_imdb(ns: argparse.Namespace):
+    """
+    Traverses the directory and generates the .nfo files.
+
+    :param ns: the parsed options
+    :type ns: argparse.Namespace
+    """
+    # setup environment
+    setup_env(ns, logger)
+
+    dirs = []
+    determine_dirs(ns.dir, ns.recursive, dirs)
+    dirs.sort()
+    logger.info("# dirs: %d" % len(dirs))
+    delay = ns.delay
+    if interactive:
+        delay = 0
+
+    episode_pattern = ns.episode_pattern
+    if isinstance(episode_pattern, str):
+        episode_pattern = [episode_pattern]
+
+    for d in dirs:
+        logger.info("Current dir: %s" % d)
+        id_filenames = fnmatch.filter(os.listdir(d), ns.pattern)
+
+        for id_filename in id_filenames:
+            id_path = os.path.join(d, id_filename)
+            logger.info("ID file: %s" % id_path)
+
+            id = read_id(id_path)
+            logger.info("ID: %s" % id)
+
+            if interactive and skip():
+                if proceed():
+                    continue
+                else:
+                    break
+
+            file_generated = False
+            try:
+                file_generated = generate_imdb(id, language=ns.language, fanart=ns.fanart, fanart_file=ns.fanart_file,
+                                               path=d, overwrite=ns.overwrite, dry_run=ns.dry_run,
+                                               episodes=ns.episodes, episode_pattern=episode_pattern,
+                                               season_group=ns.season_group, episode_group=ns.episode_group,
+                                               multi_episodes=ns.multi_episodes, ua=ns.user_agent)
+            except Exception:
+                logger.info(traceback.format_exc())
+
+            if interactive and not proceed():
+                break
+            if file_generated and (delay > 0):
+                time.sleep(delay)
+
+
+def generate_imdb(tid, language="en", fanart="none", fanart_file="folder.jpg", path=None, overwrite=False, dry_run=False,
                   episodes=False, episode_pattern="*S??E??*.*",
                   season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*",
                   multi_episodes=False, ua="Mozilla"):
     """
     Generates the XML for the specified IMDB ID.
 
-    :param id: the IMDB ID to use
-    :type id: str
+    :param tid: the IMDB ID to use
+    :type tid: str
     :param language: the preferred language for the titles
     :type language: str
     :param fanart: how to deal with fanart
@@ -65,7 +125,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     :return: whether a file was generated
     :rtype: bool
     """
-    id = id.strip()
+    tid = tid.strip()
 
     if isinstance(episode_pattern, str):
         episode_pattern = [episode_pattern]
@@ -82,10 +142,10 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     xml_path_multi = os.path.join(path, "multi-episode.nfo")
 
     # generate URL
-    if id.startswith("http"):
-        url = id
+    if tid.startswith("http"):
+        url = tid
     else:
-        url = "https://www.imdb.com/title/%s/" % id
+        url = "https://www.imdb.com/title/%s/" % tid
     logger.info("IMDB URL: " + url)
 
     # retrieve html
@@ -95,6 +155,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
     r = requests.get(url, headers=headers)
     if r.status_code != 200:
         logging.critical("Failed to retrieve URL (status code %d): %s" % (r.status_code, url))
+        return False
 
     # parse html
     soup = BeautifulSoup(r.content, "html.parser")
@@ -191,7 +252,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
 
             if episodes:
                 # determine seasons
-                url = create_episodes_url(id)
+                url = create_episodes_url(tid)
                 logger.info("Default episodes URL: %s" % url)
                 r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
                 if r.status_code != 200:
@@ -214,7 +275,7 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
                 season_data = {}
                 for season in seasons_sorted:
                     season_data[season] = {}
-                    url = create_episodes_url(id, season=season)
+                    url = create_episodes_url(tid, season=season)
                     logger.info("Season %s URL: %s" % (season, url))
                     r = requests.get(url, headers={"Accept-Language": language, 'user-agent': ua})
                     if r.status_code != 200:
@@ -276,6 +337,36 @@ def generate_imdb(id, language="en", fanart="none", fanart_file="folder.jpg", pa
         return output_generated
 
 
+def iterate_guess_imdb(ns: argparse.Namespace):
+    """
+    Traverses the directory and generates the .nfo files.
+
+    :param ns: the parsed options to use
+    :type ns: argparse.Namespace
+    """
+    # setup environment
+    setup_env(ns, logger)
+
+    dirs = []
+    determine_dirs(ns.dir, ns.recursive, dirs)
+    dirs.sort()
+    logger.info("# dirs: %d" % len(dirs))
+
+    for d in dirs:
+        logger.info("Current dir: %s" % d)
+        if (not ns.overwrite) and (len(fnmatch.filter(os.listdir(d), ns.pattern)) > 0):
+            continue
+
+        dname = os.path.basename(d)
+        print("\n%s\n%s" % (dname, "=" * len(dname)))
+
+        try:
+            meta_path = os.path.join(d, dname + ".imdb")
+            guess_imdb(dname, meta_path, language=ns.language, dry_run=ns.dry_run, ua=ns.user_agent)
+        except Exception:
+            logger.info(traceback.format_exc())
+
+
 def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
     """
     Generates .imdb files using the user's selection of IMDB search results for the title.
@@ -327,7 +418,7 @@ def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
                         current = " <-- current"
                     else:
                         current = ""
-                    print("%d. %s: %s (%s)%s" % (i, result["id"], result["titleNameText"], result["titleReleaseText"], current))
+                    print("%d. %s: %s%s" % (i, result["id"], result["titleNameText"], current))
                     choices.append(str(i))
                 print("0. None of the above, continue...")
             print("X. Exit")

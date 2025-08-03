@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.18 (????-??-??)
+-------------------
+
+- introduced sub-parsers to make it easier to add additional movie backends
+- added basic support for OMDb API as backend (generator/guess)
+
+
 0.0.17 (2025-04-22)
 -------------------
 

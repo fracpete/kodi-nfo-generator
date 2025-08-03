@@ -54,10 +54,26 @@ def read_id(id_path):
     :type id_path: str
     :return: the ID
     """
-
     with open(id_path, "r") as id_file:
-        id = id_file.readline()
-        return id.strip()
+        result = id_file.readline()
+        result = result.strip()
+        return result
+
+
+def strip_id(tid: str) -> str:
+    """
+    Strips any IMDB URL parts from the ID.
+
+    :param tid: the title ID to process
+    :type tid: str
+    :return: the clean ID
+    :rtype: str
+    """
+    if "?" in tid:
+        tid = tid[0:tid.index("?")]
+    if "/title/" in tid:
+        tid = tid[tid.index("/index/")+7:]
+    return tid
 
 
 def read_id_from_nfo(nfo_path, idtype):
