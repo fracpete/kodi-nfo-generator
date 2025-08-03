@@ -3,6 +3,7 @@
 Preparation:
 
 * update help screens (including sub-commands)
+* check whether examples in `README.md` are still up-to-date
 * increment version in `setup.py`
 * add new changelog section in `CHANGES.rst`
 * commit/push all changes
