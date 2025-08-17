@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# imdb.py
 # Copyright (C) 2020-2025 Fracpete (fracpete at gmail dot com)
 
 import argparse
@@ -27,7 +26,7 @@ from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
     json_loads, output_str, skip, proceed
 from kodi.xml_utils import add_node, output_xml
-from kodi.imdb_series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
+from ._series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
     extract_season_episode, determine_episodes, extract_episodes_json
 
 # logging setup

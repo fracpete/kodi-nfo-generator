@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# imdb_series.py
 # Copyright (C) 2021-2025 Fracpete (fracpete at gmail dot com)
 
 import fnmatch
