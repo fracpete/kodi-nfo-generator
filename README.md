@@ -31,6 +31,13 @@ You can install the tool with pip as follows:
 pip install kodi_nfo_generator
 ```
 
+Or straight from Github, using the latest code:
+
+```
+pip install git+https://github.com/fracpete/kodi-nfo-generator.git
+```
+
+
 ## Tools
 
 ### kodi-nfo-gen
