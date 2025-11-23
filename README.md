@@ -41,65 +41,102 @@ web using the IDs stored in the ID files.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-gen [-h] --dir DIR [--type {imdb}] [--recursive]
-                    [--pattern GLOB] [--delay SECONDS]
-                    [--preferred_language LANG]
-                    [--fanart {none,download,download-missing,use-existing}]
-                    [--fanart_file FILE] [--episodes]
-                    [--episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]]
-                    [--season_group SEASON_GROUP]
-                    [--episode_group EPISODE_GROUP] [--multi_episodes]
-                    [--dry_run] [--overwrite] [--verbose] [--debug]
-                    [--interactive] [--user-agent USER_AGENT]
+usage: kodi-nfo-gen [-h] {imdb,omdb} ...
 
-Generates Kodi .nfo files with information retrieved from IMDB using local
-files containing the unique IMDB movie ID.
+Generates Kodi .nfo files with information retrieved from internet sources
+using local files containing the unique movie and TV series IDs.
+
+positional arguments:
+  {imdb,omdb}  Backend help
+    imdb       Use IMDB as backend: https://www.imdb.com/
+    omdb       Use OMDb API as backend: https://www.omdbapi.com/
+
+optional arguments:
+  -h, --help   show this help message and exit
+```
+
+#### IMDB
+
+```
+usage: kodi-nfo-gen imdb [-h] --dir DIR [--recursive] [--pattern GLOB]
+                         [--delay SECONDS] [--dry_run] [--overwrite]
+                         [--multi_episodes] [--preferred_language LANG]
+                         [--fanart {none,download,download-missing,use-existing}]
+                         [--fanart_file FILE] [--episodes]
+                         [--episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]]
+                         [--season_group SEASON_GROUP]
+                         [--episode_group EPISODE_GROUP]
+                         [--user-agent USER_AGENT] [--interactive] [--verbose]
+                         [--debug]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --dir DIR             the directory to traverse (default: None)
-  --type {imdb}         what type of ID the movie ID files represent, ie the
-                        website they are from (default: imdb)
+  --dir DIR             the directory to traverse
   --recursive           whether to traverse the directory recursively
-                        (default: False)
-  --pattern GLOB        the pattern for the files that contain the movie IDs
-                        (default: *.imdb)
+  --pattern GLOB        the pattern for the files that contain the movie/TV
+                        series IDs
   --delay SECONDS       the delay in seconds between web queries (to avoid
-                        blacklisting) (default: 1)
+                        blacklisting)
+  --dry_run             whether to perform a 'dry-run', ie only outputting the
+                        .nfo content to stdout but not saving it to files
+  --overwrite           whether to overwrite existing .nfo files, ie
+                        recreating them with freshly retrieved data
+  --multi_episodes      whether to store the episodes info in a single file
   --preferred_language LANG
                         the preferred language for the titles (ISO 639-1, see
                         https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
-                        (default: en)
   --fanart {none,download,download-missing,use-existing}
-                        how to deal with fan-art (default: none)
+                        how to deal with fan-art
   --fanart_file FILE    when downloading or using existing fanart, use this
-                        filename (default: folder.jpg)
+                        filename
   --episodes            whether to generate .nfo files for episodes as well
-                        (default: False)
   --episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]
                         the shell pattern(s) to use for locating episode files
-                        (default: *S??E??*.*)
   --season_group SEASON_GROUP
                         the regular expression to extract the season (first
-                        group) (default: .*S([0-9]?[0-9])E.*)
+                        group)
   --episode_group EPISODE_GROUP
                         the regular expression to extract the episode (first
-                        group) (default: .*E([0-9]?[0-9]).*)
-  --multi_episodes      whether to store the episodes info in a single file
-                        (default: False)
+                        group)
+  --user-agent USER_AGENT, --ua USER_AGENT
+                        User agent for HTTP requests
+  --interactive         for enabling interactive mode
+  --verbose             whether to output logging information
+  --debug               whether to output debugging information
+```
+
+
+#### OMDb
+
+```
+usage: kodi-nfo-gen omdb [-h] --key KEY --dir DIR [--recursive]
+                         [--pattern GLOB] [--delay SECONDS] [--dry_run]
+                         [--overwrite]
+                         [--fanart {none,download,download-missing,use-existing}]
+                         [--fanart_file FILE] [--interactive] [--verbose]
+                         [--debug]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --key KEY             the API key to use
+  --dir DIR             the directory to traverse
+  --recursive           whether to traverse the directory recursively
+  --pattern GLOB        the pattern for the files that contain the movie IDs
+  --delay SECONDS       the delay in seconds between web queries (to avoid
+                        blacklisting)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
-                        (default: False)
   --overwrite           whether to overwrite existing .nfo files, ie
-                        recreating them with freshly retrieved data (default:
-                        False)
-  --verbose             whether to output logging information (default: False)
-  --debug               whether to output debugging information (default:
-                        False)
-  --interactive         for enabling interactive mode (default: False)
-  --user-agent USER_AGENT, --ua USER_AGENT
-                        User agent for HTTP requests (default: Mozilla)
+                        recreating them with freshly retrieved data
+  --fanart {none,download,download-missing,use-existing}
+                        how to deal with fan-art
+  --fanart_file FILE    when downloading or using existing fanart, use this
+                        filename
+  --interactive         for enabling interactive mode
+  --verbose             whether to output logging information
+  --debug               whether to output debugging information
 ```
+
 
 ### kodi-nfo-guess
 
@@ -112,39 +149,70 @@ appropriate title. If there is a successful hit, the meta-file gets written.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-guess [-h] --dir DIR [--type {imdb}] [--recursive]
-                      [--pattern GLOB] [--delay SECONDS]
-                      [--preferred_language LANG] [--dry_run] [--overwrite]
-                      [--verbose] [--debug] [--user-agent USER_AGENT]
+usage: kodi-nfo-guess [-h] {imdb,omdb} ...
 
-Generates output files for the kodi-nfo-gen tool.
+Generates output files for the kodi-nfo-gen tool using different backends.
+
+positional arguments:
+  {imdb,omdb}  Backend help
+    imdb       Use IMDB as backend: https://www.imdb.com/
+    omdb       Use OMDb API as backend: https://www.omdbapi.com/
+
+optional arguments:
+  -h, --help   show this help message and exit
+```
+
+
+#### IMDB
+
+```
+usage: kodi-nfo-guess imdb [-h] --dir DIR [--type {imdb}] [--recursive]
+                           [--pattern GLOB] [--preferred_language LANG]
+                           [--dry_run] [--overwrite] [--verbose] [--debug]
+                           [--user-agent USER_AGENT]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --dir DIR             the directory to traverse (default: None)
+  --dir DIR             the directory to traverse
   --type {imdb}         what type of ID the movie ID files represent, ie the
-                        website they are from (default: imdb)
+                        website they are from
   --recursive           whether to traverse the directory recursively
-                        (default: False)
   --pattern GLOB        the pattern for the files that contain the movie IDs
-                        (default: *.imdb)
-  --delay SECONDS       the delay in seconds between web queries (to avoid
-                        blacklisting) (default: 1)
   --preferred_language LANG
                         the preferred language for the titles (ISO 639-1, see
                         https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
-                        (default: en)
   --dry_run             whether to perform a 'dry-run', ie only outputting the
                         .nfo content to stdout but not saving it to files
-                        (default: False)
   --overwrite           whether to overwrite existing .nfo files, ie
-                        recreating them with freshly retrieved data (default:
-                        False)
-  --verbose             whether to output logging information (default: False)
-  --debug               whether to output debugging information (default:
-                        False)
+                        recreating them with freshly retrieved data
+  --verbose             whether to output logging information
+  --debug               whether to output debugging information
   --user-agent USER_AGENT, --ua USER_AGENT
-                        User agent for HTTP requests (default: Mozilla)
+                        User agent for HTTP requests
+```
+
+
+#### OMDb
+
+```
+usage: kodi-nfo-guess omdb [-h] --key KEY --dir DIR [--type {imdb}]
+                           [--recursive] [--pattern GLOB] [--dry_run]
+                           [--overwrite] [--verbose] [--debug]
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --key KEY       the API key to use
+  --dir DIR       the directory to traverse
+  --type {imdb}   what type of ID the movie ID files represent, ie the website
+                  they are from
+  --recursive     whether to traverse the directory recursively
+  --pattern GLOB  the pattern for the files that contain the movie IDs
+  --dry_run       whether to perform a 'dry-run', ie only outputting the .nfo
+                  content to stdout but not saving it to files
+  --overwrite     whether to overwrite existing .nfo files, ie recreating them
+                  with freshly retrieved data
+  --verbose       whether to output logging information
+  --debug         whether to output debugging information
 ```
 
 
