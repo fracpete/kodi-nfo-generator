@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.18 (????-??-??)
+0.0.18 (2025-11-23)
 -------------------
 
 - introduced sub-parsers to make it easier to add additional movie backends
