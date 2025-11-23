@@ -57,7 +57,7 @@ def main(args=None):
     parser_imdb.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern(s) to use for locating episode files", nargs="*")
     parser_imdb.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
     parser_imdb.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
-    parser_imdb.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla", help="User agent for HTTP requests")
+    parser_imdb.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla/5.0 (platform; rv:gecko-version) Gecko/gecko-trail Firefox/firefox-version", help="User agent for HTTP requests")
     parser_imdb.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
     parser_imdb.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser_imdb.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
