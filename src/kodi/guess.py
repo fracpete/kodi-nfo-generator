@@ -51,7 +51,7 @@ def main(args=None):
     parser_imdb.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
     parser_imdb.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
     parser_imdb.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
-    parser_imdb.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla", help="User agent for HTTP requests")
+    parser_imdb.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla/5.0 (platform; rv:gecko-version) Gecko/gecko-trail Firefox/firefox-version", help="User agent for HTTP requests")
 
     # omdb
     parser_omdb = subparsers.add_parser('omdb', help='Use OMDb API as backend: https://www.omdbapi.com/')
