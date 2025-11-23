@@ -47,6 +47,8 @@ setup(
     },
     packages=[
         "kodi",
+        "kodi.imdb",
+        "kodi.omdb",
     ],
     version="0.0.17",
     author='Peter "fracpete" Reutemann',
