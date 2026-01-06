@@ -15,6 +15,7 @@
 
 import argparse
 import fnmatch
+import json
 import logging
 import os
 import requests
@@ -158,7 +159,7 @@ def generate_omdb(tid, key, fanart="none", fanart_file="folder.jpg", path=None, 
     output_generated = False
 
     j = json_loads(r.content)
-    logger.debug(j)
+    logger.debug(json.dumps(j))
 
     # default movie .nfo
 

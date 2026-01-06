@@ -11,9 +11,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Copyright (C) 2020-2025 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2026 Fracpete (fracpete at gmail dot com)
 
 import argparse
+import json
+
 from bs4 import BeautifulSoup
 import fnmatch
 import logging
@@ -25,6 +27,7 @@ from xml.dom import minidom
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
     json_loads, output_str, skip, proceed
+from kodi.utils import find_sub_dict, get_nested_value
 from kodi.xml_utils import add_node, output_xml
 from ._series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
     extract_season_episode, determine_episodes, extract_episodes_json
@@ -161,6 +164,7 @@ def generate_imdb(tid, language="en", fanart="none", fanart_file="folder.jpg", p
 
     doc = minidom.Document()
     doc_multi = []
+    root = None
 
     widget = soup.find("div", id="star-rating-widget")
     if widget is None:
@@ -168,10 +172,12 @@ def generate_imdb(tid, language="en", fanart="none", fanart_file="folder.jpg", p
     else:
         preflang_title = widget["data-title"]
 
+    has_actors = False
+
     output_generated = False
     for script in soup.findAll("script", type="application/ld+json"):
         j = json_loads(script.text)
-        logger.debug(j)
+        logger.debug(json.dumps(j))
 
         root = add_node(doc, doc, TAG_MOVIE)
         add_node(doc, root, "title", j['name'] if preflang_title is None else preflang_title)
@@ -198,6 +204,7 @@ def generate_imdb(tid, language="en", fanart="none", fanart_file="folder.jpg", p
         for actor in j.get("actor", ()):
             xactor = add_node(doc, root, "actor")
             add_node(doc, xactor, "name", actor["name"])
+            has_actors = True
         if "trailer" in j and "embedUrl" in j["trailer"]:
             add_node(doc, root, "trailer", j["trailer"]["embedUrl"])
         if "aggregateRating" in j and "ratingValue" in j["aggregateRating"]:
@@ -325,15 +332,32 @@ def generate_imdb(tid, language="en", fanart="none", fanart_file="folder.jpg", p
                                     if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
                                         output_generated = True
 
-        # output .nfo
-        if multi_episodes:
-            doc_multi = "\n".join(doc_multi)
-            if output_str(doc_multi, xml_path_multi, dry_run=dry_run, overwrite=overwrite, logger=logger):
-                output_generated = True
-        if output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
-            output_generated = True
+    # fallback available?
+    if root is not None:
+        if not has_actors:
+            for script in soup.findAll("script", type="application/json"):
+                j = json_loads(script.text)
+                cast = find_sub_dict(j, "castPageTitle")
+                if cast is None:
+                    logger.debug("castPageTitle dict not found")
+                    logger.debug(json.dumps(j))
+                    continue
+                logger.debug(json.dumps(cast))
+                if "edges" in cast:
+                    for a in cast["edges"]:
+                        name = get_nested_value(a, ["node", "name", "nameText", "text"])
+                        xactor = add_node(doc, root, "actor")
+                        add_node(doc, xactor, "name", name)
 
-        return output_generated
+    # output .nfo
+    if multi_episodes:
+        doc_multi = "\n".join(doc_multi)
+        if output_str(doc_multi, xml_path_multi, dry_run=dry_run, overwrite=overwrite, logger=logger):
+            output_generated = True
+    if output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
+        output_generated = True
+
+    return output_generated
 
 
 def iterate_guess_imdb(ns: argparse.Namespace):

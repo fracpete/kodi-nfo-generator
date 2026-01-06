@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.0.19 (????-??-??)
+-------------------
+
+- debugging output of json data now outputs valid json
+- added fallback for obtaining actor information from potential `application/json` data if `application/ld+json` has none (imdb)
+
+
 0.0.18 (2025-11-23)
 -------------------
 
