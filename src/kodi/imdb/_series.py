@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Copyright (C) 2021-2025 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2021-2026 Fracpete (fracpete at gmail dot com)
 
 import fnmatch
 import logging
@@ -22,6 +22,7 @@ from datetime import datetime
 from xml.dom import minidom
 from kodi.xml_utils import add_node
 from kodi.io_utils import determine_dirs
+from ._utils import extract_id
 
 
 AIRDATE_FORMAT = "%d %b. %Y"
@@ -43,18 +44,19 @@ def has_episodes(j):
     return ("@type" in j) and (j["@type"] == "TVSeries")
 
 
-def create_episodes_url(id, season=None):
+def create_episodes_url(tid, season=None):
     """
     Generates the URL for the episodes overview page.
 
-    :param id: the IMDB ID
-    :type id: str
+    :param tid: the IMDB ID
+    :type tid: str
     :param season: the optional season to use
     :type season: str
     :return: the generated URL
     :rtype: str
     """
-    result = "https://www.imdb.com/title/%s/episodes/" % id
+    tid = extract_id(tid)
+    result = "https://www.imdb.com/title/%s/episodes/" % tid
     if season is not None:
         result += "?season=%s" % season
     return result
@@ -129,8 +131,7 @@ def extract_episodes_html(soup, season):
             title = title_tag.string.strip()
 
             # episode link
-            uniqueid = title_tag["href"].replace("/title/", "")
-            uniqueid = uniqueid[0:uniqueid.index("/")]
+            uniqueid = extract_id(title_tag["href"])
 
             # plot
             plot_tag = ep_data_tag.find("div", attrs={"itemprop": "description", "class": "item_description"})
@@ -225,8 +226,7 @@ def extract_episodes_html(soup, season):
             # episode = None
 
             # episode link
-            uniqueid = title_tag["href"].replace("/title/", "")
-            uniqueid = uniqueid[0:uniqueid.index("/")]
+            uniqueid = extract_id(title_tag["href"])
 
             # plot
             plot_tag = article.find("div", attrs={"class": "ipc-html-content-inner-div"})
