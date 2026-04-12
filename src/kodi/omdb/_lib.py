@@ -11,26 +11,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Copyright (C) 2025 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2025-2026 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
 import json
 import logging
 import os
-import requests
 import time
-import traceback
-
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 from xml.dom import minidom
+
+import requests
+
 from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, read_id, skip, proceed, json_loads, prompt, get_nfo_file, strip_id, \
     TAG_MOVIE, FILENAME_TVSHOW
 from kodi.xml_utils import add_node, output_xml
-
 
 # logging setup
 logger = logging.getLogger("kodi.omdb")
@@ -147,7 +146,7 @@ def iterate_omdb(ns: argparse.Namespace):
                 file_generated = generate_omdb(id, ns.key, path=d, fanart=ns.fanart, fanart_file=ns.fanart_file,
                                                overwrite=ns.overwrite, dry_run=ns.dry_run,)
             except Exception:
-                logger.info(traceback.format_exc())
+                logger.exception("Failed to process ID: %s" % id)
 
             if interactive and not proceed():
                 break
@@ -324,7 +323,7 @@ def iterate_guess_omdb(ns: argparse.Namespace):
             meta_path = os.path.join(d, dname + ".imdb")
             guess_omdb(dname, ns.key, meta_path, dry_run=ns.dry_run)
         except Exception:
-            logger.info(traceback.format_exc())
+            logger.exception("Failed to process directory: %s" % d)
 
 
 def guess_omdb(title, key, meta_path, dry_run=False):

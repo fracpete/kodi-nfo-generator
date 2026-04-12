@@ -14,16 +14,16 @@
 # Copyright (C) 2020-2026 Fracpete (fracpete at gmail dot com)
 
 import argparse
-import json
-
-from bs4 import BeautifulSoup
 import fnmatch
+import json
 import logging
 import os
-import requests
 import time
-import traceback
 from xml.dom import minidom
+
+import requests
+from bs4 import BeautifulSoup
+
 from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
@@ -156,7 +156,7 @@ def iterate_imdb(ns: argparse.Namespace):
                                                season_group=ns.season_group, episode_group=ns.episode_group,
                                                multi_episodes=ns.multi_episodes, ua=ns.user_agent)
             except Exception:
-                logger.info(traceback.format_exc())
+                logger.exception("Failed to process ID: %s" % id)
 
             if interactive and not proceed():
                 break
@@ -460,7 +460,7 @@ def iterate_guess_imdb(ns: argparse.Namespace):
             meta_path = os.path.join(d, dname + ".imdb")
             guess_imdb(dname, meta_path, language=ns.language, dry_run=ns.dry_run, ua=ns.user_agent)
         except Exception:
-            logger.info(traceback.format_exc())
+            logger.exception("Failed to process directory: %s" % d)
 
 
 def guess_imdb(title, meta_path, language="en", dry_run=False, ua="Mozilla"):
