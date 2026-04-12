@@ -55,8 +55,8 @@ using local files containing the unique movie and TV series IDs.
 
 positional arguments:
   {imdb,omdb}  Backend help
-    imdb       Use IMDB as backend: https://www.imdb.com/
-    omdb       Use OMDb API as backend: https://www.omdbapi.com/
+    imdb       Uses IMDB as backend: https://www.imdb.com/
+    omdb       Uses the OMDb API as backend: https://www.omdbapi.com/
 
 optional arguments:
   -h, --help   show this help message and exit
@@ -162,8 +162,8 @@ Generates output files for the kodi-nfo-gen tool using different backends.
 
 positional arguments:
   {imdb,omdb}  Backend help
-    imdb       Use IMDB as backend: https://www.imdb.com/
-    omdb       Use OMDb API as backend: https://www.omdbapi.com/
+    imdb       Uses IMDB as backend: https://www.imdb.com/
+    omdb       Uses the OMDb API as backend: https://www.omdbapi.com/
 
 optional arguments:
   -h, --help   show this help message and exit
@@ -322,6 +322,29 @@ optional arguments:
   --debug         whether to output debugging information (default: False)
   --interactive   for enabling interactive mode (default: False)
 ```
+
+### kodi-nfo-registry
+
+```
+usage: kodi-nfo-registry [-h] [-c CUSTOM_CLASS_LISTERS]
+                         [-e EXCLUDED_CLASS_LISTERS]
+                         [-l {apis,custom-class-listers,env-class-listers}]
+
+For inspecting/querying the registry.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CUSTOM_CLASS_LISTERS, --custom_class_listers CUSTOM_CLASS_LISTERS
+                        The comma-separated list of custom class listers to
+                        use. (default: None)
+  -e EXCLUDED_CLASS_LISTERS, --excluded_class_listers EXCLUDED_CLASS_LISTERS
+                        The comma-separated list of class listers to exclude.
+                        (default: None)
+  -l {apis,custom-class-listers,env-class-listers}, --list {apis,custom-class-listers,env-class-listers}
+                        For outputting various lists on stdout. (default:
+                        None)
+```
+
 
 ## Examples
 

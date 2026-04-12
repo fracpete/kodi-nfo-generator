@@ -25,6 +25,7 @@ import traceback
 from typing import Optional
 from datetime import datetime
 from xml.dom import minidom
+from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, read_id, skip, proceed, json_loads, prompt, get_nfo_file, strip_id, \
     TAG_MOVIE, FILENAME_TVSHOW
@@ -33,6 +34,72 @@ from kodi.xml_utils import add_node, output_xml
 
 # logging setup
 logger = logging.getLogger("kodi.omdb")
+
+
+class OMDB(MediaAPI):
+
+    def name(self) -> str:
+        """
+        Returns the name of the handler, used as sub-command.
+
+        :return: the name
+        :rtype: str
+        """
+        return "omdb"
+
+    def description(self) -> str:
+        """
+        Returns a description of the handler.
+
+        :return: the description
+        :rtype: str
+        """
+        return "Uses the OMDb API as backend: https://www.omdbapi.com/"
+
+    def iterate(self, sub_parsers):
+        """
+        Adds the argument sub-parser for the API that iterates
+        over directories looking for media to update.
+
+        Tool: kodi-nfo-gen
+
+        :param sub_parsers: the sub-parsers to append
+        """
+        parser = sub_parsers.add_parser(self.name(), help=self.description())
+        parser.set_defaults(func=iterate_omdb)
+        parser.add_argument("--key", metavar="KEY", dest="key", required=True, help="the API key to use")
+        parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
+        parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
+        parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
+        parser.add_argument("--delay", metavar="SECONDS", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
+        parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
+        parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
+        parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "download-missing", "use-existing"], default="none", required=False, help="how to deal with fan-art")
+        parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
+        parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
+        parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
+        parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+
+    def guess(self, sub_parsers):
+        """
+        Adds the argument sub-parser for the API that iterates
+        over directories looking for media to update.
+
+        Tool: kodi-nfo-guess
+
+        :param sub_parsers: the sub-parsers to append
+        """
+        parser = sub_parsers.add_parser(self.name(), help=self.description())
+        parser.set_defaults(func=iterate_guess_omdb)
+        parser.add_argument("--key", metavar="KEY", dest="key", required=True, help="the API key to use")
+        parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
+        parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
+        parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
+        parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
+        parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
+        parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
+        parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
+        parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
 
 
 def iterate_omdb(ns: argparse.Namespace):

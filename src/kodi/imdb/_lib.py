@@ -24,6 +24,7 @@ import requests
 import time
 import traceback
 from xml.dom import minidom
+from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
     json_loads, output_str, skip, proceed
@@ -34,6 +35,79 @@ from ._series import has_episodes, create_episodes_url, extract_seasons, extract
 
 # logging setup
 logger = logging.getLogger("kodi.imdb")
+
+
+class IMDB(MediaAPI):
+
+    def name(self) -> str:
+        """
+        Returns the name of the handler, used as sub-command.
+
+        :return: the name
+        :rtype: str
+        """
+        return "imdb"
+
+    def description(self) -> str:
+        """
+        Returns a description of the handler.
+
+        :return: the description
+        :rtype: str
+        """
+        return "Uses IMDB as backend: https://www.imdb.com/"
+
+    def iterate(self, sub_parsers):
+        """
+        Adds the argument sub-parser for the API that iterates
+        over directories looking for media to update.
+
+        Tool: kodi-nfo-gen
+
+        :param sub_parsers: the sub-parsers to append
+        """
+        parser = sub_parsers.add_parser(self.name(), help=self.description())
+        parser.set_defaults(func=iterate_imdb)
+        parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
+        parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
+        parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie/TV series IDs")
+        parser.add_argument("--delay", metavar="SECONDS", dest="delay", type=int, required=False, default=1, help="the delay in seconds between web queries (to avoid blacklisting)")
+        parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
+        parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
+        parser.add_argument("--multi_episodes", action="store_true", dest="multi_episodes", required=False, help="whether to store the episodes info in a single file")
+        parser.add_argument("--preferred_language", metavar="LANG", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
+        parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "download-missing", "use-existing"], default="none", required=False, help="how to deal with fan-art")
+        parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
+        parser.add_argument("--episodes", action="store_true", dest="episodes", required=False, help="whether to generate .nfo files for episodes as well")
+        parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern(s) to use for locating episode files", nargs="*")
+        parser.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
+        parser.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
+        parser.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla/5.0 (platform; rv:gecko-version) Gecko/gecko-trail Firefox/firefox-version", help="User agent for HTTP requests")
+        parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
+        parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
+        parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+
+    def guess(self, sub_parsers):
+        """
+        Adds the argument sub-parser for the API that iterates
+        over directories looking for media to update.
+
+        Tool: kodi-nfo-guess
+
+        :param sub_parsers: the sub-parsers to append
+        """
+        parser = sub_parsers.add_parser(self.name(), help=self.description())
+        parser.set_defaults(func=iterate_guess_imdb)
+        parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
+        parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
+        parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
+        parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
+        parser.add_argument("--preferred_language", metavar="LANG", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")
+        parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
+        parser.add_argument("--overwrite", action="store_true", dest="overwrite", required=False, help="whether to overwrite existing .nfo files, ie recreating them with freshly retrieved data")
+        parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
+        parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
+        parser.add_argument("--user-agent", "--ua", type=str, required=False, default="Mozilla/5.0 (platform; rv:gecko-version) Gecko/gecko-trail Firefox/firefox-version", help="User agent for HTTP requests")
 
 
 def iterate_imdb(ns: argparse.Namespace):

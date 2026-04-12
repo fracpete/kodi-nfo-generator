@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.0 (????-??-??)
+------------------
+
+- switched API to using seppl (https://github.com/waikato-datamining/seppl) for making it
+  easier to register new media APIs.
+- `imdb` is broken, due to IMDB making use of AWS WAF (https://docs.aws.amazon.com/waf/),
+  resulting in 202 status codes (see https://github.com/fracpete/kodi-nfo-generator/issues/10)
+
+
 0.0.19 (2026-01-17)
 -------------------
 

@@ -56,6 +56,7 @@ setup(
     install_requires=[
         "requests",
         "beautifulsoup4!=4.9.*",
+        "seppl",
     ],
     entry_points={
         "console_scripts": [
@@ -64,6 +65,10 @@ setup(
             "kodi-nfo-rename=kodi.rename:sys_main",
             "kodi-nfo-export=kodi.exports:sys_main",
             "kodi-nfo-import=kodi.imports:sys_main",
-        ]
+            "kodi-nfo-registry=kodi.registry:sys_main",
+        ],
+        "class_lister": [
+            "kodi=kodi.class_lister",
+        ],
     }
 )
