@@ -99,7 +99,6 @@ class IMDB(MediaAPI):
         parser = sub_parsers.add_parser(self.name(), help=self.description())
         parser.set_defaults(func=iterate_guess_imdb)
         parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
-        parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
         parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
         parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
         parser.add_argument("--preferred_language", metavar="LANG", dest="language", required=False, default="en", help="the preferred language for the titles (ISO 639-1, see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)")

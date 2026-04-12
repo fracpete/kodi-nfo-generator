@@ -173,16 +173,14 @@ optional arguments:
 #### IMDB
 
 ```
-usage: kodi-nfo-guess imdb [-h] --dir DIR [--type {imdb}] [--recursive]
-                           [--pattern GLOB] [--preferred_language LANG]
-                           [--dry_run] [--overwrite] [--verbose] [--debug]
+usage: kodi-nfo-guess imdb [-h] --dir DIR [--recursive] [--pattern GLOB]
+                           [--preferred_language LANG] [--dry_run]
+                           [--overwrite] [--verbose] [--debug]
                            [--user-agent USER_AGENT]
 
 optional arguments:
   -h, --help            show this help message and exit
   --dir DIR             the directory to traverse
-  --type {imdb}         what type of ID the movie ID files represent, ie the
-                        website they are from
   --recursive           whether to traverse the directory recursively
   --pattern GLOB        the pattern for the files that contain the movie IDs
   --preferred_language LANG
@@ -202,16 +200,14 @@ optional arguments:
 #### OMDb
 
 ```
-usage: kodi-nfo-guess omdb [-h] --key KEY --dir DIR [--type {imdb}]
-                           [--recursive] [--pattern GLOB] [--dry_run]
-                           [--overwrite] [--verbose] [--debug]
+usage: kodi-nfo-guess omdb [-h] --key KEY --dir DIR [--recursive]
+                           [--pattern GLOB] [--dry_run] [--overwrite]
+                           [--verbose] [--debug]
 
 optional arguments:
   -h, --help      show this help message and exit
   --key KEY       the API key to use
   --dir DIR       the directory to traverse
-  --type {imdb}   what type of ID the movie ID files represent, ie the website
-                  they are from
   --recursive     whether to traverse the directory recursively
   --pattern GLOB  the pattern for the files that contain the movie IDs
   --dry_run       whether to perform a 'dry-run', ie only outputting the .nfo

@@ -93,7 +93,6 @@ class OMDB(MediaAPI):
         parser.set_defaults(func=iterate_guess_omdb)
         parser.add_argument("--key", metavar="KEY", dest="key", required=True, help="the API key to use")
         parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
-        parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
         parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
         parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
         parser.add_argument("--dry_run", action="store_true", dest="dry_run", required=False, help="whether to perform a 'dry-run', ie only outputting the .nfo content to stdout but not saving it to files")
