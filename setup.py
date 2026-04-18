@@ -49,6 +49,7 @@ setup(
         "kodi",
         "kodi.imdb",
         "kodi.omdb",
+        "kodi.tmdb",
     ],
     version="0.0.19",
     author='Peter "fracpete" Reutemann',
