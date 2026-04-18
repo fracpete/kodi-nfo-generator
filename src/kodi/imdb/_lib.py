@@ -27,10 +27,9 @@ from bs4 import BeautifulSoup
 from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, get_nfo_file, \
-    json_loads, output_str, skip, proceed
+    json_loads, output_str, skip, proceed, determine_episodes, extract_season_episode
 from kodi.utils import find_sub_dict, get_nested_value
 from kodi.xml_utils import add_node, output_xml
-from kodi.series_utils import determine_episodes, extract_season_episode
 from ._series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
     extract_episodes_json
 
