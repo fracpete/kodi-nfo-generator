@@ -372,7 +372,7 @@ def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "
     if "vote_average" in j:
         xratings = add_node(doc, root, "ratings")
         xrating = add_node(doc, xratings, "rating")
-        xrating.setAttribute("name", "imdb")
+        xrating.setAttribute("name", "tmdb")
         xrating.setAttribute("max", "10")
         add_node(doc, xrating, "value", str(j["vote_average"]))
 
