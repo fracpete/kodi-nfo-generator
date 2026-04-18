@@ -22,5 +22,6 @@ def list_classes() -> Dict[str, List[str]]:
         "kodi.api.MediaAPI": [
             "kodi.imdb",
             "kodi.omdb",
+            "kodi.tmdb",
         ],
     }
