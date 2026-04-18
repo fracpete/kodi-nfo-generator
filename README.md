@@ -203,17 +203,18 @@ appropriate title. If there is a successful hit, the meta-file gets written.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-guess [-h] {imdb,omdb} ...
+usage: kodi-nfo-guess [-h] {imdb,omdb,tmdb} ...
 
 Generates output files for the kodi-nfo-gen tool using different backends.
 
 positional arguments:
-  {imdb,omdb}  Backend help
-    imdb       Uses IMDB as backend: https://www.imdb.com/
-    omdb       Uses the OMDb API as backend: https://www.omdbapi.com/
+  {imdb,omdb,tmdb}  Backend help
+    imdb            DEPRECATED -- Uses IMDB as backend: https://www.imdb.com/
+    omdb            Uses the OMDb API as backend: https://www.omdbapi.com/
+    tmdb            Uses the TMDB API as backend: https://www.themoviedb.org/
 
 optional arguments:
-  -h, --help   show this help message and exit
+  -h, --help        show this help message and exit
 ```
 
 
