@@ -145,6 +145,52 @@ optional arguments:
 ```
 
 
+#### TMDB
+
+```
+usage: kodi-nfo-gen tmdb [-h] [--type {movie,tv-show}] --key KEY --dir DIR
+                         [--recursive] [--pattern GLOB] [--delay SECONDS]
+                         [--dry_run] [--overwrite] [--max_actors NUM]
+                         [--fanart {none,download,download-missing,use-existing}]
+                         [--fanart_file FILE]
+                         [--episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]]
+                         [--season_group SEASON_GROUP]
+                         [--episode_group EPISODE_GROUP] [--interactive]
+                         [--verbose] [--debug]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --type {movie,tv-show}
+                        what type of media to process
+  --key KEY             the access token to use
+  --dir DIR             the directory to traverse
+  --recursive           whether to traverse the directory recursively
+  --pattern GLOB        the pattern for the files that contain the movie IDs
+  --delay SECONDS       the delay in seconds between web queries (to avoid
+                        blacklisting)
+  --dry_run             whether to perform a 'dry-run', ie only outputting the
+                        .nfo content to stdout but not saving it to files
+  --overwrite           whether to overwrite existing .nfo files, ie
+                        recreating them with freshly retrieved data
+  --max_actors NUM      the maximum number of actors to store
+  --fanart {none,download,download-missing,use-existing}
+                        how to deal with fan-art
+  --fanart_file FILE    when downloading or using existing fanart, use this
+                        filename
+  --episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]
+                        the shell pattern(s) to use for locating episode files
+  --season_group SEASON_GROUP
+                        the regular expression to extract the season (first
+                        group)
+  --episode_group EPISODE_GROUP
+                        the regular expression to extract the episode (first
+                        group)
+  --interactive         for enabling interactive mode
+  --verbose             whether to output logging information
+  --debug               whether to output debugging information
+```
+
+
 ### kodi-nfo-guess
 
 The `kodi-nfo-guess` tool can be used for generating, e.g., the `.imdb`
@@ -216,6 +262,30 @@ optional arguments:
                   with freshly retrieved data
   --verbose       whether to output logging information
   --debug         whether to output debugging information
+```
+
+
+#### TMDB 
+
+```
+usage: kodi-nfo-guess tmdb [-h] [--type {movie,tv-show}] --key KEY --dir DIR
+                           [--recursive] [--pattern GLOB] [--dry_run]
+                           [--overwrite] [--verbose] [--debug]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --type {movie,tv-show}
+                        what type of media to process
+  --key KEY             the access token to use
+  --dir DIR             the directory to traverse
+  --recursive           whether to traverse the directory recursively
+  --pattern GLOB        the pattern for the files that contain the movie IDs
+  --dry_run             whether to perform a 'dry-run', ie only outputting the
+                        .nfo content to stdout but not saving it to files
+  --overwrite           whether to overwrite existing .nfo files, ie
+                        recreating them with freshly retrieved data
+  --verbose             whether to output logging information
+  --debug               whether to output debugging information
 ```
 
 
@@ -381,6 +451,7 @@ Then you can the tool for generating the `.nfo` files like this:
 
 ```
 kodi-nfo-gen \
+  tmdb \
   --dir ./mymovies \
   --recursive \
   --verbose
@@ -391,6 +462,7 @@ you can use the following command-line:
 
 ```
 kodi-nfo-gen \
+  tmdb \
   --dir ./mymovies \
   --recursive \
   --fanart download \
