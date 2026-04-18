@@ -131,7 +131,7 @@ def main(args=None):
         prog="kodi-nfo-import")
     parser.add_argument("--input", metavar="CSV", dest="input", required=True, help="the CSV output file to store the collected information in")
     parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the top-level directory of the movies if relative directories are used in the CSV file")
-    parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID to create, ie what website the IDs are from")
+    parser.add_argument("--type", dest="type", choices=["imdb", "omdb", "tmdb"], default="imdb", required=False, help="what type of ID to create, ie what website the IDs are from")
     parser.add_argument("--col_id", metavar="COL", dest="col_id", required=True, help="the column that contains the ID (name or 1-based index)")
     parser.add_argument("--col_dir", metavar="COL", dest="col_dir", required=True, help="the column that contains the directory (name or 1-based index)")
     parser.add_argument("--col_file", metavar="COL", dest="col_file", required=False, default=None, help="the column that contains the file name (name or 1-based index)")

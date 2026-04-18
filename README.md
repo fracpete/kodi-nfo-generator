@@ -331,26 +331,28 @@ looks for `.nfo` files, in case you already have meta-data stored for your movie
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-export [-h] --dir DIR [--recursive] [--type {imdb}]
+usage: kodi-nfo-export [-h] --dir DIR [--recursive] [--type {imdb,omdb,tmdb}]
                        [--pattern GLOB] --output CSV [--verbose] [--debug]
                        [--interactive]
 
 Exports Kodi ID/.nfo files to CSV, associating directories with IDs.
 
 optional arguments:
-  -h, --help      show this help message and exit
-  --dir DIR       the directory to traverse (default: None)
-  --recursive     whether to traverse the directory recursively (default:
-                  False)
-  --type {imdb}   what type of ID the movie ID files represent, ie the website
-                  they are from (default: imdb)
-  --pattern GLOB  the pattern for the files that contain the movie IDs
-                  (default: *.imdb)
-  --output CSV    the CSV output file to store the collected information in
-                  (default: None)
-  --verbose       whether to output logging information (default: False)
-  --debug         whether to output debugging information (default: False)
-  --interactive   for enabling interactive mode (default: False)
+  -h, --help            show this help message and exit
+  --dir DIR             the directory to traverse (default: None)
+  --recursive           whether to traverse the directory recursively
+                        (default: False)
+  --type {imdb,omdb,tmdb}
+                        what type of ID the movie ID files represent, ie the
+                        website they are from (default: imdb)
+  --pattern GLOB        the pattern for the files that contain the movie IDs
+                        (default: *.imdb)
+  --output CSV          the CSV output file to store the collected information
+                        in (default: None)
+  --verbose             whether to output logging information (default: False)
+  --debug               whether to output debugging information (default:
+                        False)
+  --interactive         for enabling interactive mode (default: False)
 ```
 
 ### kodi-nfo-import
@@ -361,34 +363,36 @@ files in your movie directory structure.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb}] --col_id COL
-                       --col_dir COL [--col_file COL] [--dry_run]
+usage: kodi-nfo-import [-h] --input CSV --dir DIR [--type {imdb,omdb,tmdb}]
+                       --col_id COL --col_dir COL [--col_file COL] [--dry_run]
                        [--overwrite] [--verbose] [--debug] [--interactive]
 
 Imports IDs from CSV, storing ID files in the associated directories.
 
 optional arguments:
-  -h, --help      show this help message and exit
-  --input CSV     the CSV output file to store the collected information in
-                  (default: None)
-  --dir DIR       the top-level directory of the movies if relative
-                  directories are used in the CSV file (default: None)
-  --type {imdb}   what type of ID to create, ie what website the IDs are from
-                  (default: imdb)
-  --col_id COL    the column that contains the ID (name or 1-based index)
-                  (default: None)
-  --col_dir COL   the column that contains the directory (name or 1-based
-                  index) (default: None)
-  --col_file COL  the column that contains the file name (name or 1-based
-                  index) (default: None)
-  --dry_run       whether to perform a 'dry-run', ie only outputting the ID
-                  file content to stdout but not saving them to files
-                  (default: False)
-  --overwrite     whether to overwrite any existing ID files or leave them be
-                  (default: False)
-  --verbose       whether to output logging information (default: False)
-  --debug         whether to output debugging information (default: False)
-  --interactive   for enabling interactive mode (default: False)
+  -h, --help            show this help message and exit
+  --input CSV           the CSV output file to store the collected information
+                        in (default: None)
+  --dir DIR             the top-level directory of the movies if relative
+                        directories are used in the CSV file (default: None)
+  --type {imdb,omdb,tmdb}
+                        what type of ID to create, ie what website the IDs are
+                        from (default: imdb)
+  --col_id COL          the column that contains the ID (name or 1-based
+                        index) (default: None)
+  --col_dir COL         the column that contains the directory (name or
+                        1-based index) (default: None)
+  --col_file COL        the column that contains the file name (name or
+                        1-based index) (default: None)
+  --dry_run             whether to perform a 'dry-run', ie only outputting the
+                        ID file content to stdout but not saving them to files
+                        (default: False)
+  --overwrite           whether to overwrite any existing ID files or leave
+                        them be (default: False)
+  --verbose             whether to output logging information (default: False)
+  --debug               whether to output debugging information (default:
+                        False)
+  --interactive         for enabling interactive mode (default: False)
 ```
 
 ### kodi-nfo-registry

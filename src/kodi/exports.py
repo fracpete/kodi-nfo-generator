@@ -12,7 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # exports.py
-# Copyright (C) 2020 Fracpete (fracpete at gmail dot com)
+# Copyright (C) 2020-2026 Fracpete (fracpete at gmail dot com)
 
 import argparse
 import fnmatch
@@ -124,7 +124,7 @@ def main(args=None):
         prog="kodi-nfo-export")
     parser.add_argument("--dir", metavar="DIR", dest="dir", required=True, help="the directory to traverse")
     parser.add_argument("--recursive", action="store_true", dest="recursive", required=False, help="whether to traverse the directory recursively")
-    parser.add_argument("--type", dest="type", choices=["imdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
+    parser.add_argument("--type", dest="type", choices=["imdb", "omdb", "tmdb"], default="imdb", required=False, help="what type of ID the movie ID files represent, ie the website they are from")
     parser.add_argument("--pattern", metavar="GLOB", dest="pattern", required=False, default="*.imdb", help="the pattern for the files that contain the movie IDs")
     parser.add_argument("--output", metavar="CSV", dest="output", required=True, help="the CSV output file to store the collected information in")
     parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
