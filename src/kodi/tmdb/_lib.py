@@ -450,24 +450,24 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
     logger.debug(json.dumps(j))
 
     xml_path = os.path.join(path, FILENAME_TVSHOW)
-    doc = minidom.Document()
-    root = add_node(doc, doc, TAG_TVSHOW)
+    showdoc = minidom.Document()
+    root = add_node(showdoc, showdoc, TAG_TVSHOW)
 
-    add_node(doc, root, "title", j['name'])
-    add_node(doc, root, "originaltitle", j["original_name"])
-    uniqueid = add_node(doc, root, "uniqueid", str(j["id"]))
+    add_node(showdoc, root, "title", j['name'])
+    add_node(showdoc, root, "originaltitle", j["original_name"])
+    uniqueid = add_node(showdoc, root, "uniqueid", str(j["id"]))
     uniqueid.setAttribute("type", "tmdb")
     uniqueid.setAttribute("default", "true")
     if "overview" in j:
-        add_node(doc, root, "plot", j["overview"])
-        add_node(doc, root, "outline", j["overview"])
+        add_node(showdoc, root, "plot", j["overview"])
+        add_node(showdoc, root, "outline", j["overview"])
     if "vote_average" in j:
-        add_node(doc, root, "mpaa", str(j["vote_average"]))
+        add_node(showdoc, root, "mpaa", str(j["vote_average"]))
     if "first_air_date" in j:
-        add_node(doc, root, "premiered", j["first_air_date"])
+        add_node(showdoc, root, "premiered", j["first_air_date"])
     if "genres" in j:
         for genre in j["genres"]:
-            add_node(doc, root, "genre", genre["name"])
+            add_node(showdoc, root, "genre", genre["name"])
     # actors
     url = "https://api.themoviedb.org/3/tv/%s/credits" % str(j["id"])
     r = requests.get(url, headers=create_header(key))
@@ -479,8 +479,8 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
         for actor in cast["cast"]:
             if actor["known_for_department"] == "Acting":
                 num_actors += 1
-                xactor = add_node(doc, root, "actor")
-                add_node(doc, xactor, "name", actor["name"])
+                xactor = add_node(showdoc, root, "actor")
+                add_node(showdoc, xactor, "name", actor["name"])
                 if num_actors >= max_actors:
                     break
 
@@ -548,9 +548,9 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
     poster_path = None
     if "poster_path" in j:
         poster_path = j["poster_path"]
-    download_fanart_tmdb(doc=doc, root=root, path=path, fanart=fanart, fanart_file=fanart_file, poster_path=poster_path)
+    download_fanart_tmdb(doc=showdoc, root=root, path=path, fanart=fanart, fanart_file=fanart_file, poster_path=poster_path)
 
-    if output_xml(doc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
+    if output_xml(showdoc, xml_path, dry_run=dry_run, overwrite=overwrite, logger=logger):
         output_generated = True
 
     return output_generated
