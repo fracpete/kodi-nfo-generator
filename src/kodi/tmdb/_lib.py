@@ -27,7 +27,7 @@ import requests
 from kodi.api import MediaAPI
 from kodi.env import setup_env, interactive
 from kodi.io_utils import determine_dirs, read_id, skip, proceed, json_loads, prompt, get_nfo_file, strip_id, \
-    TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW
+    TAG_MOVIE, TAG_TVSHOW, FILENAME_TVSHOW, determine_episodes, extract_season_episode
 from kodi.xml_utils import add_node, output_xml
 
 # logging setup
@@ -88,6 +88,9 @@ class TMDB(MediaAPI):
         parser.add_argument("--max_actors", metavar="NUM", dest="max_actors", type=int, required=False, default=3, help="the maximum number of actors to store")
         parser.add_argument("--fanart", dest="fanart", choices=["none", "download", "download-missing", "use-existing"], default="none", required=False, help="how to deal with fan-art")
         parser.add_argument("--fanart_file", metavar="FILE", dest="fanart_file", default="folder.jpg", required=False, help="when downloading or using existing fanart, use this filename")
+        parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern(s) to use for locating episode files", nargs="*")
+        parser.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
+        parser.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
         parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
         parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
         parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
@@ -159,11 +162,14 @@ def iterate_tmdb(ns: argparse.Namespace):
             try:
                 if ns.type == TYPE_MOVIE:
                     file_generated = generate_tmdb_movie(id, ns.key, ns.max_actors, path=d, fanart=ns.fanart, fanart_file=ns.fanart_file,
-                                                         overwrite=ns.overwrite, dry_run=ns.dry_run,)
+                                                         overwrite=ns.overwrite, dry_run=ns.dry_run)
                 elif ns.type == TYPE_TVSHOW:
                     file_generated = generate_tmdb_tvshow(id, ns.key, ns.max_actors, path=d, fanart=ns.fanart,
                                                           fanart_file=ns.fanart_file,
-                                                          overwrite=ns.overwrite, dry_run=ns.dry_run, )
+                                                          overwrite=ns.overwrite, dry_run=ns.dry_run,
+                                                          episode_pattern=ns.episode_pattern,
+                                                          episode_group=ns.episode_group,
+                                                          season_group=ns.season_group)
                 else:
                     logger.error("Unhandled type: %s" % ns.type)
             except Exception:
@@ -383,7 +389,8 @@ def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "
 
 
 def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = "none", fanart_file: str = "folder.jpg",
-                         path: str = None, overwrite: bool = False, dry_run: bool = False):
+                         path: str = None, overwrite: bool = False, dry_run: bool = False,
+                         episode_pattern="*S??E??*.*", season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*"):
     """
     Generates the XML for the specified TMDB/IMDB tv show ID.
 
@@ -403,6 +410,12 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
     :type overwrite: bool
     :param dry_run: whether to perform a 'dry-run', ie generating .nfo content but not saving them (only outputting them to stdout)
     :type dry_run: bool
+    :param episode_pattern: the pattern(s) to use for locating episode files
+    :type episode_pattern: str or list
+    :param season_group: the regular expression to extract the season (first group)
+    :type season_group: str
+    :param episode_group: the regular expression to extract the episode (first group)
+    :type episode_group: str
     :return: whether a file was generated
     :rtype: bool
     """
@@ -470,7 +483,66 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
                 add_node(doc, xactor, "name", actor["name"])
                 if num_actors >= max_actors:
                     break
-    # TODO episodes
+
+    # episodes
+    if "number_of_seasons" in j:
+        # determine seasons
+        seasons_episodes = determine_episodes(path, episode_pattern=episode_pattern,
+                                              season_group=season_group, episode_group=episode_group)
+        try:
+            seasons_sorted = sorted(seasons_episodes.keys(), key=int)
+        except:
+            seasons_sorted = sorted(seasons_episodes.keys())
+        logger.info("Located seasons: %s" % ", ".join(seasons_sorted))
+
+        season_data = dict()
+        for season in seasons_sorted:
+            season_data[str(season)] = dict()
+            url = "https://api.themoviedb.org/3/tv/%s/season/%s" % (tid, str(season))
+            r = requests.get(url, headers=create_header(key))
+            if r.status_code != 200:
+                logger.info("Failed to obtain episode #%s information, status code: %d" % (str(season), r.status_code))
+            else:
+                e = r.json()
+                if "episodes" in e:
+                    for episode in e["episodes"]:
+                        doc = minidom.Document()
+                        season_data[str(season)][str(str(episode["episode_number"]))] = doc
+                        root = add_node(doc, doc, "episodedetails")
+                        add_node(doc, root, "season", str(season))
+                        add_node(doc, root, "episode", str(episode["episode_number"]))
+                        add_node(doc, root, "title", episode["name"])
+                        add_node(doc, root, "plot", episode["overview"])
+                        if "air_data" in episode:
+                            add_node(doc, root, "aired", episode["air_data"])
+                        uniqueid = add_node(doc, root, "uniqueid", str(episode["id"]))
+                        uniqueid.setAttribute("type", "tmdb")
+                        uniqueid.setAttribute("default", "true")
+                        ratings = add_node(doc, root, "ratings")
+                        rating = add_node(doc, ratings, "ratings")
+                        rating.setAttribute("name", "imdb")
+                        rating.setAttribute("max", "10")
+                        rating.setAttribute("default", "true")
+                        add_node(doc, rating, "value", str(episode["vote_average"]))
+                        add_node(doc, rating, "votes", str(episode["vote_count"]))
+
+                # locate files and output XML
+                dirs = []
+                determine_dirs(path, True, dirs)
+                for d in dirs:
+                    for epattern in episode_pattern:
+                        files = fnmatch.filter(os.listdir(d), epattern)
+                        for f in files:
+                            if f.endswith(".nfo"):
+                                continue
+                            parts = extract_season_episode(f, season_group=season_group, episode_group=episode_group)
+                            if parts is None:
+                                continue
+                            s, e = parts
+                            if (s in season_data) and (e in season_data[s]):
+                                xml_path_ep = os.path.join(d, os.path.splitext(f)[0] + ".nfo")
+                                if output_xml(season_data[s][e], xml_path_ep, dry_run=dry_run, overwrite=overwrite, logger=logger):
+                                    output_generated = True
 
     # fanart
     poster_path = None
@@ -509,7 +581,7 @@ def iterate_guess_tmdb(ns: argparse.Namespace):
 
         try:
             meta_path = os.path.join(d, dname + ".tmdb")
-            guess_tmdb(dname, ns.key, meta_path, dry_run=ns.dry_run)
+            guess_tmdb(dname, ns.key, ns.type, meta_path, dry_run=ns.dry_run)
         except Exception:
             logger.exception("Failed to process directory: %s" % d)
 
