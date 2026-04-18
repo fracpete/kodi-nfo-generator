@@ -30,8 +30,9 @@ from kodi.io_utils import determine_dirs, prompt, read_id, TAG_MOVIE, TAG_TVSHOW
     json_loads, output_str, skip, proceed
 from kodi.utils import find_sub_dict, get_nested_value
 from kodi.xml_utils import add_node, output_xml
+from kodi.series_utils import determine_episodes, extract_season_episode
 from ._series import has_episodes, create_episodes_url, extract_seasons, extract_episodes_html, episode_to_xml, \
-    extract_season_episode, determine_episodes, extract_episodes_json
+    extract_episodes_json
 
 # logging setup
 logger = logging.getLogger("kodi.imdb")
