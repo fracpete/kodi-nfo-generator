@@ -55,7 +55,7 @@ class IMDB(MediaAPI):
         :return: the description
         :rtype: str
         """
-        return "Uses IMDB as backend: https://www.imdb.com/"
+        return "DEPRECATED -- Uses IMDB as backend: https://www.imdb.com/"
 
     def iterate(self, sub_parsers):
         """

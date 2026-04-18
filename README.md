@@ -48,18 +48,19 @@ web using the IDs stored in the ID files.
 The following parameters can be supplied to the tool:
 
 ```
-usage: kodi-nfo-gen [-h] {imdb,omdb} ...
+usage: kodi-nfo-gen [-h] {imdb,omdb,tmdb} ...
 
 Generates Kodi .nfo files with information retrieved from internet sources
 using local files containing the unique movie and TV series IDs.
 
 positional arguments:
-  {imdb,omdb}  Backend help
-    imdb       Uses IMDB as backend: https://www.imdb.com/
-    omdb       Uses the OMDb API as backend: https://www.omdbapi.com/
+  {imdb,omdb,tmdb}  Backend help
+    imdb            DEPRECATED -- Uses IMDB as backend: https://www.imdb.com/
+    omdb            Uses the OMDb API as backend: https://www.omdbapi.com/
+    tmdb            Uses the TMDB API as backend: https://www.themoviedb.org/
 
 optional arguments:
-  -h, --help   show this help message and exit
+  -h, --help        show this help message and exit
 ```
 
 #### IMDB
