@@ -156,8 +156,9 @@ usage: kodi-nfo-gen tmdb [-h] [--type {movie,tv-show}] --key KEY --dir DIR
                          [--fanart_file FILE]
                          [--episode_pattern [EPISODE_PATTERN [EPISODE_PATTERN ...]]]
                          [--season_group SEASON_GROUP]
-                         [--episode_group EPISODE_GROUP] [--interactive]
-                         [--verbose] [--debug]
+                         [--episode_group EPISODE_GROUP]
+                         [--tmdb_suffix SUFFIX] [--interactive] [--verbose]
+                         [--debug]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -186,6 +187,8 @@ optional arguments:
   --episode_group EPISODE_GROUP
                         the regular expression to extract the episode (first
                         group)
+  --tmdb_suffix SUFFIX  The file suffix (incl dot) to use for storing the TMDB
+                        ID on disk, when processing IMDB IDs.
   --interactive         for enabling interactive mode
   --verbose             whether to output logging information
   --debug               whether to output debugging information

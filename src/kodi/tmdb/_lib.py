@@ -91,6 +91,7 @@ class TMDB(MediaAPI):
         parser.add_argument("--episode_pattern", dest="episode_pattern", required=False, default="*S??E??*.*", help="the shell pattern(s) to use for locating episode files", nargs="*")
         parser.add_argument("--season_group", dest="season_group", required=False, default=".*S([0-9]?[0-9])E.*", help="the regular expression to extract the season (first group)")
         parser.add_argument("--episode_group", dest="episode_group", required=False, default=".*E([0-9]?[0-9]).*", help="the regular expression to extract the episode (first group)")
+        parser.add_argument("--tmdb_suffix", metavar="SUFFIX", dest="tmdb_suffix", default=None, required=False, help="The file suffix (incl dot) to use for storing the TMDB ID on disk, when processing IMDB IDs.")
         parser.add_argument("--interactive", action="store_true", dest="interactive", required=False, help="for enabling interactive mode")
         parser.add_argument("--verbose", action="store_true", dest="verbose", required=False, help="whether to output logging information")
         parser.add_argument("--debug", action="store_true", dest="debug", required=False, help="whether to output debugging information")
@@ -285,8 +286,29 @@ def download_fanart_tmdb(doc=None, root=None, poster_path: str = None, path: str
         logger.critical("Ignoring unhandled fanart type: %s" % fanart_act)
 
 
+def save_tmdb_id(path: str, tid: str, tmdb_suffix: str):
+    """
+    Stores the TMDB ID on disk, if not present.
+
+    :param path: the current directory
+    :type path: str
+    :param tid: the TMDB ID
+    :type tid: str
+    :param tmdb_suffix: the extension to use (incl dot)
+    :type tmdb_suffix: str
+    """
+    tid_file = os.path.join(path, tid + tmdb_suffix)
+    if not os.path.exists(tid_file):
+        logger.info("Saving TMDB ID to: %s" % tid_file)
+        try:
+            with open(tid_file, "w") as fp:
+                fp.write(tid)
+        except:
+            logger.exception("Failed to write TMDB ID to: %s" % tid_file)
+
+
 def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "none", fanart_file: str = "folder.jpg",
-                        path: str = None, overwrite: bool = False, dry_run: bool = False):
+                        path: str = None, tmdb_suffix: str = None, overwrite: bool = False, dry_run: bool = False):
     """
     Generates the XML for the specified TMDB/IMDB movie ID.
 
@@ -302,6 +324,8 @@ def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "
     :type fanart_file: str
     :param path: the current directory (used for determining episode files)
     :type path: str
+    :param tmdb_suffix: the file suffix to use for storing the TMDB ID on disk, ignored if None
+    :type tmdb_suffix: str
     :param overwrite: whether to overwrite existing .nfo files (ie recreating them)
     :type overwrite: bool
     :param dry_run: whether to perform a 'dry-run', ie generating .nfo content but not saving them (only outputting them to stdout)
@@ -324,6 +348,7 @@ def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "
         tid = imdb_to_tmdb(tid, key, TYPE_MOVIE)
         if tid is None:
             return False
+        save_tmdb_id(path, tid, tmdb_suffix)
 
     url = "https://api.themoviedb.org/3/movie/%s" % tid
     logger.info("tmdb query: %s" % url)
@@ -390,7 +415,8 @@ def generate_tmdb_movie(tid: str, key: str, max_actors: int = 5, fanart: str = "
 
 def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = "none", fanart_file: str = "folder.jpg",
                          path: str = None, overwrite: bool = False, dry_run: bool = False,
-                         episode_pattern="*S??E??*.*", season_group=".*S([0-9]?[0-9])E.*", episode_group=".*E([0-9]?[0-9]).*"):
+                         episode_pattern="*S??E??*.*", season_group=".*S([0-9]?[0-9])E.*",
+                         episode_group=".*E([0-9]?[0-9]).*", tmdb_suffix: str = None):
     """
     Generates the XML for the specified TMDB/IMDB tv show ID.
 
@@ -416,6 +442,8 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
     :type season_group: str
     :param episode_group: the regular expression to extract the episode (first group)
     :type episode_group: str
+    :param tmdb_suffix: the file suffix to use for storing the TMDB ID on disk, ignored if None
+    :type tmdb_suffix: str
     :return: whether a file was generated
     :rtype: bool
     """
@@ -434,6 +462,7 @@ def generate_tmdb_tvshow(tid: str, key: str, max_actors: int = 5, fanart: str = 
         tid = imdb_to_tmdb(tid, key, TYPE_TVSHOW)
         if tid is None:
             return False
+        save_tmdb_id(path, tid, tmdb_suffix)
 
     url = "https://api.themoviedb.org/3/tv/%s" % tid
     logger.info("tmdb query: %s" % url)
