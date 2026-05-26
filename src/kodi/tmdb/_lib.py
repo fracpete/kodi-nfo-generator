@@ -162,11 +162,12 @@ def iterate_tmdb(ns: argparse.Namespace):
             file_generated = False
             try:
                 if ns.type == TYPE_MOVIE:
-                    file_generated = generate_tmdb_movie(id, ns.key, ns.max_actors, path=d, fanart=ns.fanart, fanart_file=ns.fanart_file,
+                    file_generated = generate_tmdb_movie(id, ns.key, ns.max_actors, path=d, fanart=ns.fanart,
+                                                         fanart_file=ns.fanart_file, tmdb_suffix=ns.tmdb_suffix,
                                                          overwrite=ns.overwrite, dry_run=ns.dry_run)
                 elif ns.type == TYPE_TVSHOW:
                     file_generated = generate_tmdb_tvshow(id, ns.key, ns.max_actors, path=d, fanart=ns.fanart,
-                                                          fanart_file=ns.fanart_file,
+                                                          fanart_file=ns.fanart_file, tmdb_suffix=ns.tmdb_suffix,
                                                           overwrite=ns.overwrite, dry_run=ns.dry_run,
                                                           episode_pattern=ns.episode_pattern,
                                                           episode_group=ns.episode_group,
