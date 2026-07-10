@@ -635,7 +635,7 @@ def guess_tmdb(title, key, type_, meta_path, dry_run=False):
     """
     if type_ == TYPE_MOVIE:
         url = "https://api.themoviedb.org/3/search/movie"
-    elif type == TYPE_TVSHOW:
+    elif type_ == TYPE_TVSHOW:
         url = "https://api.themoviedb.org/3/search/tv"
     else:
         logger.error("Unhandled type: %s" % type_)
