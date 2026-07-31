@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.1 (2026-08-01)
+------------------
+
+- tmdb: fixed typo in handling of type for tv-show guessing (https://github.com/fracpete/kodi-nfo-generator/issues/12)
+
+
 0.1.0 (2026-05-28)
 ------------------
 
