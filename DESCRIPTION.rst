@@ -13,3 +13,12 @@ It is also possible to pull in information about episodes of a TV series (`--epi
 Though this is slow due to a lot more API calls. In this case, `.nfo <https://kodi.wiki/view/NFO_files/Episodes>`__
 files for TV episodes are being generated. The episodes
 can either be in the same directory of the .nfo file of the series or in sub-directories.
+
+
+**Supported sources**
+
+The following movie/TV-show sources are supported:
+
+* *imdb* - original source, now broken due to IMDB switching to AWS AWF
+* *omdb* - Open Movie Database (https://www.omdbapi.com/), movies only, no TV-shows
+* *tmdb* - The Movie Database (https://www.themoviedb.org/), supports IMDB IDs as well

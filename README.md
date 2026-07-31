@@ -16,6 +16,15 @@ files for TV episodes are being generated. The episodes
 can either be in the same directory of the .nfo file of the series or in sub-directories.  
 
 
+## Supported sources
+
+The following movie/TV-show sources are supported:
+
+* `imdb` - original source, now broken due to IMDB switching to [AWS AWF](https://github.com/fracpete/kodi-nfo-generator/issues/10#issuecomment-4106938206)
+* `omdb` - [Open Movie Database](https://www.omdbapi.com/), movies only, no TV-shows
+* `tmdb` - [The Movie Database](https://www.themoviedb.org/), supports IMDB IDs as well
+
+
 ## Kodi integration
 
 See the following repository for integrating this tool with [Kodi](https://kodi.tv/):
@@ -63,7 +72,7 @@ optional arguments:
   -h, --help        show this help message and exit
 ```
 
-#### IMDB
+#### IMDB (broken)
 
 ```
 usage: kodi-nfo-gen imdb [-h] --dir DIR [--recursive] [--pattern GLOB]
